@@ -14,7 +14,8 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private lateinit var mapView: PhotoView
+    private lateinit var floorView: PhotoView
+    private lateinit var floorPicker: com.shawnlin.numberpicker.NumberPicker
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -29,8 +30,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
-        mapView = findViewById(R.id.photo_view)
-        mapView.setImageResource(R.drawable.floor1)
+        val currentBuilding = Building("EATMore", arrayOf(Floor(R.drawable.floor1), Floor(R.drawable.floor2), Floor(R.drawable.floor3), Floor(R.drawable.floor4), Floor(R.drawable.floor5)), 5)
+        floorView = findViewById(R.id.photo_view)
+        floorPicker = findViewById(R.id.number_picker)
+        floorPicker.minValue = 1
+        floorPicker.maxValue = currentBuilding.numberOfFloors
+        floorView.setImageResource(currentBuilding.floors[floorPicker.value - 1].image)
+
+        floorPicker.setOnValueChangedListener { _, _, newValue -> floorView.setImageResource(currentBuilding.floors[newValue - 1].image) }
         nav_view.setNavigationItemSelectedListener(this)
     }
 
