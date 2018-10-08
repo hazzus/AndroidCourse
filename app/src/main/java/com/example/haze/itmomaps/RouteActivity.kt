@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
 class RouteActivity : AppCompatActivity() {
@@ -17,7 +18,18 @@ class RouteActivity : AppCompatActivity() {
         val from = findViewById<EditText>(R.id.from).text.toString()
         val to = findViewById<EditText>(R.id.to).text.toString()
         val intent = Intent(this, ShowRoutesActivity::class.java)
+        val b = Bundle()
+        b.putString("from", from)
+        b.putString("to", to)
+        intent.putExtras(b)
         startActivity(intent)
+    }
+
+
+    fun swapRoutes(view: View) {
+        val from = findViewById<TextView>(R.id.from).text.toString()
+        findViewById<TextView>(R.id.from).text = findViewById<TextView>(R.id.to).text.toString()
+        findViewById<TextView>(R.id.to).text = from
     }
 
 }
