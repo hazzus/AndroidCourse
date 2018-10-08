@@ -9,8 +9,8 @@ import kotlinx.android.synthetic.main.activity_show_routes.*
 class ShowRoutesActivity: AppCompatActivity() {
 
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_show_routes)
 
         val layoutManager = LinearLayoutManager(this)

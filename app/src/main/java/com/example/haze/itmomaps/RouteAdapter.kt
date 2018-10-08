@@ -1,5 +1,6 @@
 package com.example.haze.itmomaps
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -15,6 +16,7 @@ class RouteAdapter(private val allRoutes : List<Route>) :
         RecyclerView.Adapter<RouteViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RouteViewHolder {
+        assert(this.allRoutes.isNotEmpty())
         val layout = LayoutInflater.from(parent.context)
                 .inflate(R.layout.route_text_view, parent, false) as LinearLayout
         // set some parameters on view
