@@ -12,7 +12,7 @@ class RouteViewHolder(val layout: LinearLayout) : RecyclerView.ViewHolder(layout
     val routeTitle: TextView = layout.route_title
 }
 
-class RouteAdapter(private val allRoutes : List<Route>) :
+class RouteAdapter(private val allRoutes: List<Route>) :
         RecyclerView.Adapter<RouteViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RouteViewHolder {

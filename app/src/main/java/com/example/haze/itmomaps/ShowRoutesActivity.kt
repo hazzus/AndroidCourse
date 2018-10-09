@@ -5,8 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_show_routes.*
 
-class ShowRoutesActivity: AppCompatActivity() {
-
+class ShowRoutesActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,7 +20,7 @@ class ShowRoutesActivity: AppCompatActivity() {
         }
     }
 
-    private fun createRoutes(count: Int, extras: Bundle?) : List<Route> {
+    private fun createRoutes(count: Int, extras: Bundle?): List<Route> {
         // TODO rewrite for routes building algorithm
         // extras are from and to
 

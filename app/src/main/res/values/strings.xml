@@ -13,4 +13,7 @@
     <string name="leave_comment">Leave comment</string>
     <string name="from_here">From here</string>
     <string name="to_here">To here</string>
+    <string name="comment_title_hint">Comment title</string>
+    <string name="comment_field">Leave your comment here</string>
+    <string name="comment_button">Post comment</string>
 </resources>
