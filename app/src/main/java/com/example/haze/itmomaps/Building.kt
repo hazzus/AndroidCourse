@@ -1,3 +1,5 @@
 package com.example.haze.itmomaps
 
-data class Building(val name: String, var floors: Array<Floor>, var numberOfFloors: Int)
+import android.graphics.Bitmap
+
+data class Building(val name: String, var floors: Array<Bitmap>, var numberOfFloors: Int)

@@ -1,6 +1,7 @@
 package com.example.haze.itmomaps
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -30,14 +31,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
-        val currentBuilding = Building("EATMore", arrayOf(Floor(R.drawable.floor1), Floor(R.drawable.floor2), Floor(R.drawable.floor3), Floor(R.drawable.floor4), Floor(R.drawable.floor5)), 5)
+        val currentBuilding = Building("EATMore", arrayOf(BitmapFactory.decodeResource(resources, R.drawable.floor1), BitmapFactory.decodeResource(resources, R.drawable.floor2), BitmapFactory.decodeResource(resources, R.drawable.floor3), BitmapFactory.decodeResource(resources, R.drawable.floor4), BitmapFactory.decodeResource(resources, R.drawable.floor5)), 5)
         floorView = findViewById(R.id.photo_view)
         floorPicker = findViewById(R.id.number_picker)
         floorPicker.minValue = 1
         floorPicker.maxValue = currentBuilding.numberOfFloors
-        floorView.setImageResource(currentBuilding.floors[floorPicker.value - 1].image)
-
-        floorPicker.setOnValueChangedListener { _, _, newValue -> floorView.setImageResource(currentBuilding.floors[newValue - 1].image) }
+        floorView.setImageBitmap(currentBuilding.floors[floorPicker.value - 1])
+        floorPicker.setOnValueChangedListener { _, _, newValue -> floorView.setImageBitmap(currentBuilding.floors[newValue - 1]) }
         nav_view.setNavigationItemSelectedListener(this)
     }
 
