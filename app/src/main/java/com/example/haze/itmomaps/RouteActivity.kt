@@ -17,11 +17,10 @@ class RouteActivity : AppCompatActivity() {
     fun showRoutes(view: View) {
         val from = findViewById<EditText>(R.id.from).text.toString()
         val to = findViewById<EditText>(R.id.to).text.toString()
-        val intent = Intent(this, ShowRoutesActivity::class.java)
-        val b = Bundle()
-        b.putString("from", from)
-        b.putString("to", to)
-        intent.putExtras(b)
+        val intent = Intent(this, ShowRoutesActivity::class.java).apply {
+            putExtra("from", from)
+            putExtra("to", to)
+        }
         startActivity(intent)
     }
 
