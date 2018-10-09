@@ -30,7 +30,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         val buildingNames = arrayOf("Kronv", "Lomo", "Grivc")
-        val currentBuilding = Building("EATMore", arrayOf(BitmapFactory.decodeResource(resources, R.drawable.floor1), BitmapFactory.decodeResource(resources, R.drawable.floor2), BitmapFactory.decodeResource(resources, R.drawable.floor3), BitmapFactory.decodeResource(resources, R.drawable.floor4), BitmapFactory.decodeResource(resources, R.drawable.floor5)), 5)
+        // THIS TAKES REALLY FUCKING BIG MEMORY
+        // TODO fix this to server download
+        val currentBuilding = Building("EATMore",
+                arrayOf(
+                        BitmapFactory.decodeResource(resources, R.drawable.floor1),
+                        BitmapFactory.decodeResource(resources, R.drawable.floor2),
+                        BitmapFactory.decodeResource(resources, R.drawable.floor3),
+                        BitmapFactory.decodeResource(resources, R.drawable.floor4),
+                        BitmapFactory.decodeResource(resources, R.drawable.floor5)),
+                5)
+
         floorView = findViewById(R.id.photo_view)
         floorPicker = findViewById(R.id.number_picker)
         floorPicker.minValue = 1
