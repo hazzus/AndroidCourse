@@ -1,8 +1,12 @@
 package com.example.haze.itmomaps
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
+import android.util.LruCache
 import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
@@ -14,12 +18,14 @@ import com.github.chrisbanes.photoview.PhotoView
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import java.io.ByteArrayOutputStream
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var floorView: PhotoView
     private lateinit var floorPicker: com.shawnlin.numberpicker.NumberPicker
     private lateinit var buildingSelector: Spinner
+    private lateinit var mMemoryCache: LruCache<String, Bitmap>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -29,24 +35,32 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             startActivity(intent)
         }
 
+        val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
+        val cacheMemory = maxMemory / 4
+        mMemoryCache = object : LruCache<String, Bitmap>(cacheMemory) {
+
+            override fun sizeOf(key: String, bitmap: Bitmap): Int {
+                return bitmap.byteCount / 1024
+            }
+        }
         val buildingNames = arrayOf("Kronv", "Lomo", "Grivc")
         // THIS TAKES REALLY FUCKING BIG MEMORY
         // TODO fix this to server download
         val currentBuilding = Building("EATMore",
                 arrayOf(
-                        BitmapFactory.decodeResource(resources, R.drawable.floor1),
-                        BitmapFactory.decodeResource(resources, R.drawable.floor2),
-                        BitmapFactory.decodeResource(resources, R.drawable.floor3),
-                        BitmapFactory.decodeResource(resources, R.drawable.floor4),
-                        BitmapFactory.decodeResource(resources, R.drawable.floor5)),
+                        R.drawable.floor1,
+                        R.drawable.floor2,
+                        R.drawable.floor3,
+                        R.drawable.floor4,
+                        R.drawable.floor5),
                 5)
 
         floorView = findViewById(R.id.photo_view)
         floorPicker = findViewById(R.id.number_picker)
         floorPicker.minValue = 1
         floorPicker.maxValue = currentBuilding.numberOfFloors
-        floorView.setImageBitmap(currentBuilding.floors[floorPicker.value - 1])
-        floorPicker.setOnValueChangedListener { _, _, newValue -> floorView.setImageBitmap(currentBuilding.floors[newValue - 1]) }
+        loadBitmap(currentBuilding.floors[floorPicker.value - 1], floorView)
+        floorPicker.setOnValueChangedListener { _, _, newValue -> loadBitmap(currentBuilding.floors[newValue - 1], floorView) }
         registerForContextMenu(floorView)
         floorView.setOnLongClickListener { openContextMenu(it); true }
         nav_view.setNavigationItemSelectedListener(this)
@@ -56,6 +70,39 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         buildingSelector.adapter = adapter
 
+    }
+
+    fun loadBitmap(resId: Int, imageView: PhotoView) {
+        val imageKey: String = resId.toString()
+
+        val bitmap: Bitmap? = mMemoryCache[imageKey]?.also {
+            imageView.setImageBitmap(it)
+        } ?: run {
+            imageView.setImageResource(resId)
+            val task = BitmapWorkerTask()
+            task.execute(resId)
+            null
+        }
+    }
+
+    private inner class BitmapWorkerTask : AsyncTask<Int, Unit, Bitmap>() {
+        override fun doInBackground(vararg params: Int?): Bitmap? {
+            return params[0]?.let { imageId ->
+                compressBitmap(BitmapFactory.decodeResource(resources, imageId)).also { bitmap ->
+                    mMemoryCache.put(imageId.toString(), bitmap)
+
+                }
+            }
+        }
+    }
+
+    private fun compressBitmap(bitmap: Bitmap): Bitmap {
+        val stream = ByteArrayOutputStream()
+
+        bitmap.compress(Bitmap.CompressFormat.WEBP, 0, stream)
+        val byteArray = stream.toByteArray()
+        Log.v("123", byteArray.size.toString())
+        return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -73,6 +120,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
         super.onCreateContextMenu(menu, v, menuInfo)
         menuInflater.inflate(R.menu.context_menu, menu)
+    }
+
+    override fun onContextItemSelected(item: MenuItem?): Boolean {
+        when (item!!.itemId) {
+            R.id.comment -> {
+                startActivity(Intent(this, LeaveMapCommentActivity::class.java))
+            }
+
+        }
+        return super.onContextItemSelected(item)
     }
 
     override fun onBackPressed() {

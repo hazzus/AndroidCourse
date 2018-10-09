@@ -9,4 +9,7 @@
     <item
         android:id="@+id/to"
         android:title="@string/to_here" />
+    <item
+        android:id="@+id/view"
+        android:title="@string/view_comments" />
 </menu>

@@ -27,6 +27,9 @@
             android:name=".ShowRoutesActivity"
             android:label="Route variants">
         </activity>
+        <activity
+            android:name=".LeaveMapCommentActivity"
+            android:label="Leave comment"></activity>
     </application>
 
 </manifest>

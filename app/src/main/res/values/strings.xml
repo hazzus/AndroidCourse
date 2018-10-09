@@ -16,4 +16,5 @@
     <string name="comment_title_hint">Comment title</string>
     <string name="comment_field">Leave your comment here</string>
     <string name="comment_button">Post comment</string>
+    <string name="view_comments">View comments</string>
 </resources>
