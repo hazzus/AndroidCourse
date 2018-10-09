@@ -10,4 +10,7 @@
     <string name="button_swap">Swap locations</string>
     <string name="from">Location</string>
     <string name="to">Destination</string>
+    <string name="leave_comment">Leave comment</string>
+    <string name="from_here">From here</string>
+    <string name="to_here">To here</string>
 </resources>
