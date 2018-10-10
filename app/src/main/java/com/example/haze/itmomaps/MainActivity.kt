@@ -26,12 +26,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var floorPicker: com.shawnlin.numberpicker.NumberPicker
     private lateinit var buildingSelector: Spinner
     private lateinit var mMemoryCache: LruCache<String, Bitmap>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         fab.setOnClickListener {
-            val intent = Intent(this, RouteActivity::class.java)
+            val intent = Intent(this, RouteActivity::class.java).apply {
+                putExtra("building", buildingSelector.selectedItem.toString())
+            }
             startActivity(intent)
         }
 
@@ -72,7 +75,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-    fun loadBitmap(resId: Int, imageView: PhotoView) {
+    private fun loadBitmap(resId: Int, imageView: PhotoView) {
         val imageKey: String = resId.toString()
 
         val bitmap: Bitmap? = mMemoryCache[imageKey]?.also {
@@ -123,11 +126,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onContextItemSelected(item: MenuItem?): Boolean {
+        // TODO change location and destination to coordinates ot map objects
         when (item!!.itemId) {
             R.id.comment -> {
-                startActivity(Intent(this, LeaveMapCommentActivity::class.java))
+                intent = Intent(this, LeaveMapCommentActivity::class.java).apply {
+                    putExtra("where", "LOCATION")
+                }
+                startActivity(intent)
             }
-
+            R.id.from -> {
+                intent = Intent(this, RouteActivity::class.java).apply {
+                    putExtra("building", buildingSelector.selectedItem.toString())
+                    putExtra("from", "LOCATION")
+                }
+                startActivity(intent)
+            }
+            R.id.to -> {
+                intent = Intent(this, RouteActivity::class.java).apply {
+                    putExtra("building", buildingSelector.selectedItem.toString())
+                    putExtra("to", "DESTINATION")
+                }
+                startActivity(intent)
+            }
+            R.id.view -> {
+                startActivity(Intent(this, ViewMapCommentsActivity::class.java))
+            }
         }
         return super.onContextItemSelected(item)
     }

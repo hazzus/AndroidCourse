@@ -27,7 +27,9 @@ class ShowRoutesActivity : AppCompatActivity() {
         val res = mutableListOf<Route>()
         repeat(count) {
             if (extras != null) {
-                res.add(Route(extras.get("from") as String, extras.get("to") as String))
+                res.add(Route(extras.get("from") as String,
+                        extras.get("to") as String,
+                        extras.get("building") as String))
             }
         }
         return res
