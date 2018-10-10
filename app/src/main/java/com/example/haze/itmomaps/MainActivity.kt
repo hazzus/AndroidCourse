@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var floorView: PhotoView
     private lateinit var floorPicker: NumberPicker
     private lateinit var buildingSelector: Spinner
+    private lateinit var currentBuilding: Building
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +36,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val buildingNames = arrayOf("Kronv", "Lomo", "Grivc")
         // THIS TAKES REALLY FUCKING BIG MEMORY
         // TODO fix this to server download
-        val currentBuilding = Building("EATMore",
+        currentBuilding = Building("EATMore",
                 arrayOf(
                         R.drawable.floor1,
                         R.drawable.floor2,
@@ -50,7 +51,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         floorPicker.max = currentBuilding.numberOfFloors
         floorView = findViewById(R.id.photo_view)
         floorView.setImageResource(currentBuilding.floors[floorPicker.value - 1])
-        floorPicker.setValueChangedListener { value, _ -> floorView.setImageResource(currentBuilding.floors[floorPicker.value - 1]) }
+        floorPicker.setValueChangedListener { value, _ -> floorView.setImageResource(currentBuilding.floors[value - 1]) }
 
         registerForContextMenu(floorView)
         floorView.setOnLongClickListener { openContextMenu(it); true }
@@ -74,6 +75,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onRestoreInstanceState(savedInstanceState)
         if (savedInstanceState != null) {
             floorPicker.value = savedInstanceState.getInt("currentFloor")
+            floorView.setImageResource(currentBuilding.floors[floorPicker.value - 1])
         }
     }
 
