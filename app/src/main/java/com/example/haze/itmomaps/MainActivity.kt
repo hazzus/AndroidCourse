@@ -1,12 +1,7 @@
 package com.example.haze.itmomaps
 
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.os.AsyncTask
 import android.os.Bundle
-import android.util.Log
-import android.util.LruCache
 import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
@@ -16,16 +11,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import com.github.chrisbanes.photoview.PhotoView
 import com.google.android.material.navigation.NavigationView
+import com.travijuu.numberpicker.library.NumberPicker
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
-import java.io.ByteArrayOutputStream
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var floorView: PhotoView
-    private lateinit var floorPicker: com.shawnlin.numberpicker.NumberPicker
+    private lateinit var floorPicker: NumberPicker
     private lateinit var buildingSelector: Spinner
-    private lateinit var mMemoryCache: LruCache<String, Bitmap>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,14 +32,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             startActivity(intent)
         }
 
-        val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
-        val cacheMemory = maxMemory / 4
-        mMemoryCache = object : LruCache<String, Bitmap>(cacheMemory) {
-
-            override fun sizeOf(key: String, bitmap: Bitmap): Int {
-                return bitmap.byteCount / 1024
-            }
-        }
         val buildingNames = arrayOf("Kronv", "Lomo", "Grivc")
         // THIS TAKES REALLY FUCKING BIG MEMORY
         // TODO fix this to server download
@@ -58,14 +44,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         R.drawable.floor5),
                 5)
 
-        floorView = findViewById(R.id.photo_view)
+
         floorPicker = findViewById(R.id.number_picker)
-        floorPicker.minValue = 1
-        floorPicker.maxValue = currentBuilding.numberOfFloors
-        loadBitmap(currentBuilding.floors[floorPicker.value - 1], floorView)
-        floorPicker.setOnValueChangedListener { _, _, newValue -> loadBitmap(currentBuilding.floors[newValue - 1], floorView) }
+        floorPicker.min = 1
+        floorPicker.max = currentBuilding.numberOfFloors
+        floorView = findViewById(R.id.photo_view)
+        floorView.setImageResource(currentBuilding.floors[floorPicker.value - 1])
+        floorPicker.setValueChangedListener { value, _ -> floorView.setImageResource(currentBuilding.floors[floorPicker.value - 1]) }
+
         registerForContextMenu(floorView)
         floorView.setOnLongClickListener { openContextMenu(it); true }
+
         nav_view.setNavigationItemSelectedListener(this)
 
         buildingSelector = findViewById(R.id.spinner)
@@ -75,38 +64,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-    private fun loadBitmap(resId: Int, imageView: PhotoView) {
-        val imageKey: String = resId.toString()
-
-        val bitmap: Bitmap? = mMemoryCache[imageKey]?.also {
-            imageView.setImageBitmap(it)
-        } ?: run {
-            imageView.setImageResource(resId)
-            val task = BitmapWorkerTask()
-            task.execute(resId)
-            null
-        }
-    }
-
-    private inner class BitmapWorkerTask : AsyncTask<Int, Unit, Bitmap>() {
-        override fun doInBackground(vararg params: Int?): Bitmap? {
-            return params[0]?.let { imageId ->
-                compressBitmap(BitmapFactory.decodeResource(resources, imageId)).also { bitmap ->
-                    mMemoryCache.put(imageId.toString(), bitmap)
-
-                }
-            }
-        }
-    }
-
-    private fun compressBitmap(bitmap: Bitmap): Bitmap {
-        val stream = ByteArrayOutputStream()
-
-        bitmap.compress(Bitmap.CompressFormat.WEBP, 0, stream)
-        val byteArray = stream.toByteArray()
-        Log.v("123", byteArray.size.toString())
-        return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-    }
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
