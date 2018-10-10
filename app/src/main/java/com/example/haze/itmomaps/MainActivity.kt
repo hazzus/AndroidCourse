@@ -113,7 +113,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 startActivity(intent)
             }
             R.id.view -> {
-                startActivity(Intent(this, ViewMapCommentsActivity::class.java))
+                intent = Intent(this, ShowMapCommentsActivity::class.java).apply {
+                    putExtra("where", "LOCATION")
+                }
+                startActivity(intent)
             }
         }
         return super.onContextItemSelected(item)

@@ -1,6 +1,7 @@
 package com.example.haze.itmomaps
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_leave_comment.*
 
@@ -14,6 +15,10 @@ class LeaveMapCommentActivity : AppCompatActivity() {
         with (location) {
             this.text = intent.getStringExtra("where")
         }
+    }
+
+    fun postComment(view : View) {
+        //TODO send comment to server
     }
 
 }

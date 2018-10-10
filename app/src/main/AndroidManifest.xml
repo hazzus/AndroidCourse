@@ -32,7 +32,7 @@
             android:label="Leave comment">
         </activity>
         <activity
-            android:name=".ViewMapCommentsActivity"
+            android:name=".ShowMapCommentsActivity"
             android:label="Comments">
         </activity>
     </application>
