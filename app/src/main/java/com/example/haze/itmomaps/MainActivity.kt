@@ -1,6 +1,8 @@
 package com.example.haze.itmomaps
 
 import android.content.Intent
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.view.ContextMenu
 import android.view.MenuItem
@@ -26,6 +28,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
+
         fab.setOnClickListener {
             val intent = Intent(this, RouteActivity::class.java).apply {
                 putExtra("building", buildingSelector.selectedItem.toString())
@@ -49,9 +53,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         floorPicker = findViewById(R.id.number_picker)
         floorPicker.min = 1
         floorPicker.max = currentBuilding.numberOfFloors
+        if (savedInstanceState != null) {
+            floorPicker.value = savedInstanceState.getInt("currentFloor")
+
+        }
         floorView = findViewById(R.id.photo_view)
         floorView.setImageResource(currentBuilding.floors[floorPicker.value - 1])
-        floorPicker.setValueChangedListener { value, _ -> floorView.setImageResource(currentBuilding.floors[value - 1]) }
+        floorPicker.setValueChangedListener { value: Int, _ ->
+            val oldBitmap = (floorView.drawable as BitmapDrawable).bitmap
+            oldBitmap.recycle()
+            val newBitmap = BitmapFactory.decodeResource(resources, currentBuilding.floors[value - 1])
+            floorView.setImageBitmap(newBitmap)
+        }
 
         registerForContextMenu(floorView)
         floorView.setOnLongClickListener { openContextMenu(it); true }
@@ -65,18 +78,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
+        (floorView.drawable as BitmapDrawable).bitmap.recycle()
         outState?.putInt("currentFloor", floorPicker.value)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
-        super.onRestoreInstanceState(savedInstanceState)
-        if (savedInstanceState != null) {
-            floorPicker.value = savedInstanceState.getInt("currentFloor")
-            floorView.setImageResource(currentBuilding.floors[floorPicker.value - 1])
-        }
     }
 
     override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
