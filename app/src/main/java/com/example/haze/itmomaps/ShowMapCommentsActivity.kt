@@ -1,6 +1,8 @@
 package com.example.haze.itmomaps
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_show_comments.*
@@ -60,5 +62,12 @@ class ShowMapCommentsActivity : AppCompatActivity() {
             )
         }
         return res
+    }
+
+    fun leaveComment(view : View) {
+        val intent = Intent(this, LeaveMapCommentActivity::class.java).apply {
+            putExtra("where", where)
+        }
+        startActivity(intent)
     }
 }
