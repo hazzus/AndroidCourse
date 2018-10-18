@@ -4,33 +4,24 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
-import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-import com.github.chrisbanes.photoview.PhotoView
 import com.google.android.material.navigation.NavigationView
-import com.travijuu.numberpicker.library.NumberPicker
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private lateinit var floorView: PhotoView
-    private lateinit var floorPicker: NumberPicker
-    private lateinit var buildingSelector: Spinner
     private lateinit var currentBuilding: Building
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-
-        Log.v("123", "onCreate")
         fab.setOnClickListener {
             val intent = Intent(this, RouteActivity::class.java).apply {
                 putExtra("building", buildingSelector.selectedItem.toString())
@@ -51,10 +42,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 5)
 
 
-        floorPicker = findViewById(R.id.number_picker)
         floorPicker.min = 1
         floorPicker.max = currentBuilding.numberOfFloors
-        floorView = findViewById(R.id.photo_view)
         if (savedInstanceState != null) {
             floorPicker.value = savedInstanceState.getInt("currentFloor")
         }
@@ -70,33 +59,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         nav_view.setNavigationItemSelectedListener(this)
 
-        buildingSelector = findViewById(R.id.spinner)
         val adapter = ArrayAdapter(this, R.layout.building_spinner_item, buildingNames)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         buildingSelector.adapter = adapter
 
     }
 
-    override fun onPause() {
-        super.onPause()
-        Log.v("123", "onPause")
-    }
-
     override fun onResume() {
         super.onResume()
-        Log.v("123", "onResume")
         floorView.setImageBitmap(BitmapFactory.decodeResource(resources, currentBuilding.floors[floorPicker.value - 1]))
     }
 
     override fun onStop() {
         super.onStop()
-        Log.v("123", "onStop")
         (floorView.drawable as BitmapDrawable).bitmap.recycle()
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
-        Log.v("123", "onSave")
         outState?.putInt("currentFloor", floorPicker.value)
     }
 

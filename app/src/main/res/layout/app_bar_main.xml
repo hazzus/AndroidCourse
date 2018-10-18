@@ -12,13 +12,13 @@
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <Spinner
-            android:id="@+id/spinner"
+            android:id="@+id/buildingSelector"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"/>
 
         <com.travijuu.numberpicker.library.NumberPicker
-            android:id="@+id/number_picker"
+            android:id="@+id/floorPicker"
             android:layout_width="130dp"
             android:layout_height="40dp"
             android:layout_gravity="center" />

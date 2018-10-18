@@ -9,7 +9,7 @@
     tools:showIn="@layout/app_bar_main">
 
     <com.github.chrisbanes.photoview.PhotoView
-        android:id="@+id/photo_view"
+        android:id="@+id/floorView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
