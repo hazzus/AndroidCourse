@@ -109,27 +109,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // TODO change location and destination to coordinates ot map objects
         when (item!!.itemId) {
             R.id.comment -> {
-                intent = Intent(this, LeaveMapCommentActivity::class.java).apply {
+                val intent = Intent(this, LeaveMapCommentActivity::class.java).apply {
                     putExtra("where", "LOCATION")
                 }
                 startActivity(intent)
             }
             R.id.from -> {
-                intent = Intent(this, RouteActivity::class.java).apply {
+                val intent = Intent(this, RouteActivity::class.java).apply {
                     putExtra("building", buildingSelector.selectedItem.toString())
                     putExtra("from", "LOCATION")
                 }
                 startActivity(intent)
             }
             R.id.to -> {
-                intent = Intent(this, RouteActivity::class.java).apply {
+                val intent = Intent(this, RouteActivity::class.java).apply {
                     putExtra("building", buildingSelector.selectedItem.toString())
                     putExtra("to", "DESTINATION")
                 }
                 startActivity(intent)
             }
             R.id.view -> {
-                startActivity(Intent(this, ViewMapCommentsActivity::class.java))
+                val intent = Intent(this, ShowMapCommentsActivity::class.java).apply {
+                    putExtra("where", "LOCATION")
+                }
+                startActivity(intent)
             }
         }
         return super.onContextItemSelected(item)

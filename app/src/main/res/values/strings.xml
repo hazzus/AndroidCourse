@@ -17,4 +17,7 @@
     <string name="comment_field">Leave your comment here</string>
     <string name="comment_button">Post comment</string>
     <string name="view_comments">View comments</string>
+    <string name="author">Author</string>
+    <string name="comment_type">Comment type</string>
+    <string name="add_map_comment">Add comment</string>
 </resources>
