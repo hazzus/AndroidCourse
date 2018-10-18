@@ -22,6 +22,7 @@ class LeaveMapCommentActivity : AppCompatActivity() {
 
     fun postComment(view : View) {
         //TODO send comment to server
+        super.onBackPressed()
     }
 
 }

@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         nav_view.setNavigationItemSelectedListener(this)
 
         buildingSelector = findViewById(R.id.spinner)
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, buildingNames)
+        val adapter = ArrayAdapter(this, R.layout.building_spinner_item, buildingNames)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         buildingSelector.adapter = adapter
 
