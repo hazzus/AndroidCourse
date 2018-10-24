@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import com.github.chrisbanes.photoview.PhotoViewAttacher
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
@@ -18,6 +19,9 @@ import kotlinx.android.synthetic.main.content_main.*
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var currentBuilding: Building
+
+    private var currentX: Float = 0.0f
+    private var currentY: Float = 0.0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +35,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val buildingNames = arrayOf("Kronv", "Lomo", "Grivc")
         // THIS TAKES REALLY FUCKING BIG MEMORY
-        // TODO fix this to server download
+        // TODO fix this t  o server download
         currentBuilding = Building("EATMore",
                 arrayOf(
                         R.drawable.floor1,
@@ -55,8 +59,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         registerForContextMenu(floorView)
-        floorView.setOnLongClickListener { openContextMenu(it); true }
 
+        PhotoViewAttacher(floorView).setOnPhotoTapListener { _, x, y ->
+            currentX = x; currentY = y
+            openContextMenu(floorView)
+        }
         nav_view.setNavigationItemSelectedListener(this)
 
         val adapter = ArrayAdapter(this, R.layout.building_spinner_item, buildingNames)
@@ -90,27 +97,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         when (item!!.itemId) {
             R.id.comment -> {
                 val intent = Intent(this, LeaveMapCommentActivity::class.java).apply {
-                    putExtra("where", "LOCATION")
+                    putExtra("where", Pair(currentX, currentY).toString())
                 }
                 startActivity(intent)
             }
             R.id.from -> {
                 val intent = Intent(this, RouteActivity::class.java).apply {
                     putExtra("building", buildingSelector.selectedItem.toString())
-                    putExtra("from", "LOCATION")
+                    putExtra("from", Pair(currentX, currentY).toString())
                 }
                 startActivity(intent)
             }
             R.id.to -> {
                 val intent = Intent(this, RouteActivity::class.java).apply {
                     putExtra("building", buildingSelector.selectedItem.toString())
-                    putExtra("to", "DESTINATION")
+                    putExtra("to", Pair(currentX, currentY).toString())
                 }
                 startActivity(intent)
             }
             R.id.view -> {
                 val intent = Intent(this, ShowMapCommentsActivity::class.java).apply {
-                    putExtra("where", "LOCATION")
+                    putExtra("where", Pair(currentX, currentY).toString())
                 }
                 startActivity(intent)
             }
