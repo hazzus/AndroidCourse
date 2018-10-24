@@ -7,16 +7,20 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_route_view.*
-import org.w3c.dom.Text
+
 
 class RouteActivity : AppCompatActivity() {
 
     private lateinit var building : String
+    private lateinit var from : TextView
+    private lateinit var to : TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_route_view)
 
+        from = findViewById<TextView>(R.id.from)
+        to = findViewById<TextView>(R.id.to)
         building = intent.getStringExtra("building")
 
         with(building_name) {
@@ -24,10 +28,10 @@ class RouteActivity : AppCompatActivity() {
         }
 
         val from = intent.getStringExtra("from")
-        if (from != null) findViewById<TextView>(R.id.from).text = from
+        if (from != null) this.from.text = from
 
         val to = intent.getStringExtra("to")
-        if (to != null) findViewById<TextView>(R.id.to).text = to
+        if (to != null) this.to.text = to
     }
 
     fun showRoutes(view: View) {
@@ -43,9 +47,9 @@ class RouteActivity : AppCompatActivity() {
 
 
     fun swapRoutes(view: View) {
-        val from = findViewById<TextView>(R.id.from).text.toString()
-        findViewById<TextView>(R.id.from).text = findViewById<TextView>(R.id.to).text.toString()
-        findViewById<TextView>(R.id.to).text = from
+        val from = this.from.text.toString()
+        this.from.text = this.to.text.toString()
+        this.to.text = from
     }
 
 }
