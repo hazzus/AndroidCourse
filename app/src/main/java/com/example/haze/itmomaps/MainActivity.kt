@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         fab.setOnClickListener {
             val intent = Intent(this, RouteActivity::class.java).apply {
                 putExtra("building", buildingSelector.selectedItem.toString())
