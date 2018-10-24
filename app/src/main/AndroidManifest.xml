@@ -19,6 +19,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".RouteActivity"
+            android:label="Route selection">
+        </activity>
+        <activity
+            android:name=".ShowRoutesActivity"
+            android:label="Route variants">
+        </activity>
+        <activity
+            android:name=".LeaveMapCommentActivity"
+            android:label="Leave comment">
+        </activity>
+        <activity
+            android:name=".ShowMapCommentsActivity"
+            android:label="Comments">
+        </activity>
     </application>
 
 </manifest>
