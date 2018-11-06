@@ -2,15 +2,23 @@ package com.example.haze.itmomaps
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.haze.itmomaps.network.CommentView
+import com.example.haze.itmomaps.network.DownloadCommentsTask
 import kotlinx.android.synthetic.main.activity_show_comments.*
+import java.lang.ref.WeakReference
 import java.util.*
 
 class ShowMapCommentsActivity : AppCompatActivity() {
 
-    lateinit var where : String
+    var x: Int = 0
+    var y: Int = 0
+    var floor: Int = 0
+    lateinit var map: String
+    var comments: ArrayList<CommentView> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,55 +26,39 @@ class ShowMapCommentsActivity : AppCompatActivity() {
 
         val layoutManager = LinearLayoutManager(this)
 
-        where = intent.getStringExtra("where")
+        x = intent.getIntExtra("x", 0)
+        y = intent.getIntExtra("y", 0)
+        map = intent.getStringExtra("map")
+        floor = intent.getIntExtra("floor", 1)
 
-        with (comment_recycler) {
+        if (savedInstanceState?.containsKey("comments") != null) {
+            comments = savedInstanceState.getParcelableArrayList("comments")!!
+        } else {
+            DownloadCommentsTask(WeakReference(this)).execute()
+        }
+
+        with(comment_recycler) {
             this.layoutManager = layoutManager
-            adapter = CommentAdapter(getComments(where))
+            adapter = CommentAdapter(comments)
             setHasFixedSize(false)
         }
 
-        with (location) {
-            this.text = where
+        with(location) {
+            this.text = map
         }
     }
 
-    private fun getComments(location : String) : List<Comment> {
-        // TODO get comments from server
-        val res = mutableListOf<Comment>()
-        val rand = Random()
-        repeat(20) {
-            res.add(
-                    when (rand.nextInt(4)) {
-                        0 -> Comment("Peter Parker",
-                                "I'm a spider-man",
-                                "Watch me flying on the streets",
-                                "Announcement",
-                                "New-York, Earth 616")
-                        1 -> Comment("Miles Morales",
-                                "I'm a spider-kid",
-                                "Nobody can beat me!",
-                                "Announcement",
-                                "New-York, Earth 1610")
-                        2 -> Comment("J.J.Jameson",
-                                "Spider-man is a criminal",
-                                "He does no good",
-                                "Urgent",
-                                "Daily Bugle")
-                        else -> Comment("Eddie Brock",
-                                "We are VENOM",
-                                "Spider-man ruined our lives",
-                                "Warning",
-                                "New-York, Earth 616")
-                    }
-            )
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        Log.d("ShowMapCommentsActivity", "save() called")
+        if (comments.isNotEmpty()) {
+            outState?.putParcelableArrayList("comments", comments)
         }
-        return res
     }
 
-    fun leaveComment(view : View) {
+    fun leaveComment(view: View) {
         val intent = Intent(this, LeaveMapCommentActivity::class.java).apply {
-            putExtra("where", where)
+            putExtra("where", "nowhere")
         }
         startActivity(intent)
     }

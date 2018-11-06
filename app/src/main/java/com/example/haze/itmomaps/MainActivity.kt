@@ -118,7 +118,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.view -> {
                 val intent = Intent(this, ShowMapCommentsActivity::class.java).apply {
-                    putExtra("where", Pair(currentX, currentY).toString())
+                    putExtra("x", (currentX * 100).toInt())
+                    putExtra("y", (currentY * 100).toInt())
+                    putExtra("floor", floorPicker.value)
+                    putExtra("map", currentBuilding.name)
                 }
                 startActivity(intent)
             }
