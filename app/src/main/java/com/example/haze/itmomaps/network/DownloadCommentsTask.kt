@@ -38,7 +38,7 @@ class DownloadCommentsTask(val activity: WeakReference<ShowMapCommentsActivity>)
     override fun onPostExecute(result: ArrayList<CommentView>?) {
         Log.d("DownloadCommentsTask", "Post execute ran")
         activity.get()?.let {
-            it.comments = result!!
+            it.comments.addAll(result!!)
             val l = it.comments
             Log.d("DownloadCommentsTask", "it comments written = $l")
             it.comment_recycler.adapter?.notifyDataSetChanged()
