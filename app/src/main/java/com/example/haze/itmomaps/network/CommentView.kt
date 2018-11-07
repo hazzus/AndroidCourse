@@ -12,8 +12,7 @@ data class CommentView(val name: String,
             parcel.readString(),
             parcel.readString(),
             TODO("date"),
-            parcel.readString()) {
-    }
+            parcel.readString())
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(name)

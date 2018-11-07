@@ -11,7 +11,6 @@ import kotlinx.android.synthetic.main.comment_view.view.*
 
 class CommentViewHolder(val layout: LinearLayout) : RecyclerView.ViewHolder(layout) {
     val author : TextView = layout.author
-    val title : TextView = layout.title
     val body : TextView = layout.body
     val type : TextView = layout.type
 }
@@ -31,7 +30,6 @@ class CommentAdapter(private var allComments: List<CommentView>) :
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
         val comment = allComments[position]
         holder.author.text = comment.name
-        holder.title.text = "" //TODO is it really needed?
         holder.body.text = comment.comment
         holder.type.text = comment.type
     }

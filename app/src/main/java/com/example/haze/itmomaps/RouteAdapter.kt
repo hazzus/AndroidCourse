@@ -19,7 +19,6 @@ class RouteAdapter(private val allRoutes: List<Route>) :
         assert(this.allRoutes.isNotEmpty())
         val layout = LayoutInflater.from(parent.context)
                 .inflate(R.layout.route_text_view, parent, false) as LinearLayout
-        // set some parameters on view
         return RouteViewHolder(layout)
     }
 
