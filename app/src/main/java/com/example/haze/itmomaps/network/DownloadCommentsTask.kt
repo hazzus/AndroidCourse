@@ -12,7 +12,7 @@ import java.util.*
 
 class DownloadCommentsTask(val activity: WeakReference<ShowMapCommentsActivity>) : AsyncTask<String, Int, ArrayList<CommentView>>() {
     override fun doInBackground(vararg params: String?): ArrayList<CommentView> {
-        var res = ArrayList<CommentView>()
+        val res = ArrayList<CommentView>()
         publishProgress(0)
         val url = URL("https://raw.githubusercontent.com/BrilZliaN/itmo-maps-backend/junk/comments.json")
         val response = url.openConnection().run {
