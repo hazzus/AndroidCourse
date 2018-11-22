@@ -17,7 +17,8 @@ class ShowMapCommentsActivity : AppCompatActivity() {
     var x: Int = 0
     var y: Int = 0
     var floor: Int = 0
-    lateinit var map: String
+    var map: Int = 0
+    lateinit var locationName: String
     var comments: ArrayList<CommentView> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,13 +29,14 @@ class ShowMapCommentsActivity : AppCompatActivity() {
 
         x = intent.getIntExtra("x", 0)
         y = intent.getIntExtra("y", 0)
-        map = intent.getStringExtra("map")
+        map = intent.getIntExtra("map", 0)
+        locationName = intent.getStringExtra("location")
         floor = intent.getIntExtra("floor", 1)
 
         if (savedInstanceState?.containsKey("comments") != null) {
             comments = savedInstanceState.getParcelableArrayList("comments")!!
         } else {
-            DownloadCommentsTask(WeakReference(this)).execute()
+            DownloadCommentsTask(WeakReference(this), map, floor, x, y).execute()
         }
 
         with(comment_recycler) {
@@ -44,7 +46,7 @@ class ShowMapCommentsActivity : AppCompatActivity() {
         }
 
         with(location) {
-            this.text = map
+            this.text = locationName
         }
     }
 

@@ -117,11 +117,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 startActivity(intent)
             }
             R.id.view -> {
+                val x: Int = (currentX * 100).toInt()
+                val y: Int = (currentY * 100).toInt()
                 val intent = Intent(this, ShowMapCommentsActivity::class.java).apply {
-                    putExtra("x", (currentX * 100).toInt())
-                    putExtra("y", (currentY * 100).toInt())
+                    putExtra("x", x)
+                    putExtra("y", y)
                     putExtra("floor", floorPicker.value)
-                    putExtra("map", currentBuilding.name)
+                    // TODO get location name by coords
+                    // putExtra("location", currentBuilding.name)
+                    putExtra("location", Pair(x, y).toString())
+                    // TODO get map Int by name in picker
+                    putExtra("map", 1)
                 }
                 startActivity(intent)
             }
