@@ -94,31 +94,32 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onContextItemSelected(item: MenuItem?): Boolean {
-        // TODO change location and destination to coordinates ot map objects
+        // TODO truncate, not round
+        val x: Int = (currentX * 100).toInt()
+        val y: Int = (currentY * 100).toInt()
+        // TODO get here the locationName, to pass it instead of Pair().toString()
         when (item!!.itemId) {
             R.id.comment -> {
                 val intent = Intent(this, LeaveMapCommentActivity::class.java).apply {
-                    putExtra("where", Pair(currentX, currentY).toString())
+                    putExtra("where", Pair(x, y).toString())
                 }
                 startActivity(intent)
             }
             R.id.from -> {
                 val intent = Intent(this, RouteActivity::class.java).apply {
                     putExtra("building", buildingSelector.selectedItem.toString())
-                    putExtra("from", Pair(currentX, currentY).toString())
+                    putExtra("from", Pair(x, y).toString())
                 }
                 startActivity(intent)
             }
             R.id.to -> {
                 val intent = Intent(this, RouteActivity::class.java).apply {
                     putExtra("building", buildingSelector.selectedItem.toString())
-                    putExtra("to", Pair(currentX, currentY).toString())
+                    putExtra("to", Pair(x, y).toString())
                 }
                 startActivity(intent)
             }
             R.id.view -> {
-                val x: Int = (currentX * 100).toInt()
-                val y: Int = (currentY * 100).toInt()
                 val intent = Intent(this, ShowMapCommentsActivity::class.java).apply {
                     putExtra("x", x)
                     putExtra("y", y)
