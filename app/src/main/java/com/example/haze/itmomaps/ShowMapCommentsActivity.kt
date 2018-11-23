@@ -29,7 +29,7 @@ class ShowMapCommentsActivity : AppCompatActivity() {
 
         x = intent.getIntExtra("x", 0)
         y = intent.getIntExtra("y", 0)
-        map = intent.getIntExtra("map", 0)
+        map = intent.getIntExtra("map", 1)
         locationName = intent.getStringExtra("location")
         floor = intent.getIntExtra("floor", 1)
 
@@ -60,7 +60,11 @@ class ShowMapCommentsActivity : AppCompatActivity() {
 
     fun leaveComment(view: View) {
         val intent = Intent(this, LeaveMapCommentActivity::class.java).apply {
-            putExtra("where", "nowhere")
+            putExtra("location", locationName)
+            putExtra("x", x)
+            putExtra("y", y)
+            putExtra("map", map)
+            putExtra("floor", floor)
         }
         startActivity(intent)
     }

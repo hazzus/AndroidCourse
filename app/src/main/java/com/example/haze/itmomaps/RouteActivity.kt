@@ -35,8 +35,8 @@ class RouteActivity : AppCompatActivity() {
     }
 
     fun showRoutes(view: View) {
-        val from = findViewById<EditText>(R.id.from).text.toString()
-        val to = findViewById<EditText>(R.id.to).text.toString()
+        val from = this.from.text.toString()
+        val to = this.to.text.toString()
         val intent = Intent(this, ShowRoutesActivity::class.java).apply {
             putExtra("from", from)
             putExtra("to", to)

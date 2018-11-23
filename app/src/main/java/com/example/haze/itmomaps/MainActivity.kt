@@ -36,7 +36,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val buildingNames = arrayOf("Kronv", "Lomo", "Grivc")
         // THIS TAKES REALLY FUCKING BIG MEMORY
-        // TODO fix this t  o server download
+        // TODO fix this to server download
+        // TODO updating map from server
         currentBuilding = Building("EATMore",
                 arrayOf(
                         R.drawable.floor1,
@@ -95,13 +96,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onContextItemSelected(item: MenuItem?): Boolean {
         // TODO truncate, not round
-        val x: Int = (currentX * 100).toInt()
-        val y: Int = (currentY * 100).toInt()
+        var x: Int = (currentX * 100).toInt()
+        var y: Int = (currentY * 100).toInt()
         // TODO get here the locationName, to pass it instead of Pair().toString()
         when (item!!.itemId) {
+            // TODO get location name by coords
+            // TODO get map Int by name of map
             R.id.comment -> {
+                // This mades comments web larger then route
+                x /= 4
+                y /= 4
                 val intent = Intent(this, LeaveMapCommentActivity::class.java).apply {
-                    putExtra("where", Pair(x, y).toString())
+                    putExtra("x", x)
+                    putExtra("y", y)
+                    putExtra("floor", floorPicker.value)
+                    putExtra("location", Pair(x, y).toString())
+                    putExtra("map", 1)
                 }
                 startActivity(intent)
             }
@@ -120,14 +130,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 startActivity(intent)
             }
             R.id.view -> {
+                x /= 4
+                y /= 4
                 val intent = Intent(this, ShowMapCommentsActivity::class.java).apply {
                     putExtra("x", x)
                     putExtra("y", y)
                     putExtra("floor", floorPicker.value)
-                    // TODO get location name by coords
-                    // putExtra("location", currentBuilding.name)
                     putExtra("location", Pair(x, y).toString())
-                    // TODO get map Int by name in picker
                     putExtra("map", 1)
                 }
                 startActivity(intent)
