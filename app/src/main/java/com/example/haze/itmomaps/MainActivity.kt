@@ -2,6 +2,7 @@ package com.example.haze.itmomaps
 
 import android.content.Context
 import android.content.Intent
+import android.database.sqlite.SQLiteDatabase
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
@@ -17,20 +18,21 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
-import com.example.haze.itmomaps.network.DownloadFloorImagesTask
-import com.example.haze.itmomaps.network.MapObjectView
-import com.example.haze.itmomaps.network.MapView
-import com.example.haze.itmomaps.network.PictureView
+import com.example.haze.itmomaps.network.DownloadMapViewsTask
 import com.github.chrisbanes.photoview.PhotoViewAttacher
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import org.jetbrains.anko.db.StringParser
+import org.jetbrains.anko.db.insert
+import org.jetbrains.anko.db.select
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var currentBuilding: Building
-    private var mapView = MapView()
+    private lateinit var urls: MutableList<String>
+    private lateinit var db: SQLiteDatabase
     private var currentX: Float = 0.0f
     private var currentY: Float = 0.0f
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,30 +48,33 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             startActivity(intent)
         }
+        val buildingNames = arrayOf("Kronverksky", "Lomonosova", "Grivcova")
 
-        val buildingNames = arrayOf("Kronverksky", "Lomo", "Grivc")
-        currentBuilding = Building(mapView.name, mapView.pictures, 5)
         val connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
         val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
         //TODO add InternetConnection Listener
-        mapView = if (isConnected) {
-            for (i in 2..currentBuilding.numberOfFloors) {
-                DownloadFloorImagesTask(i).execute()
+        if (isConnected) {
+            db = MyDatabaseOpenHelper(applicationContext).writableDatabase
+            for (i in 1..1) {
+                val mapView = DownloadMapViewsTask(i).execute().get()
+                mapView.pictures!!.forEach {
+                    db.insert("Pictures", "building" to Integer.valueOf(i), "floor" to Integer.valueOf(it.floor!!), "url" to it.url)
+                }
             }
-            DownloadFloorImagesTask(1).execute().get()
-        } else {
-            //TODO add DB stuff
-            MapView("Kronverksky", arrayOf(PictureView(1, "https://github.com/BrilZliaN/itmo-maps-backend/raw/junk/1f.png"), PictureView(2, "https://github.com/BrilZliaN/itmo-maps-backend/raw/junk/2f.png"), PictureView(3, "https://github.com/BrilZliaN/itmo-maps-backend/raw/junk/3f.png"), PictureView(4, "https://github.com/BrilZliaN/itmo-maps-backend/raw/junk/4f.png"), PictureView(5, "https://github.com/BrilZliaN/itmo-maps-backend/raw/junk/5f.png")), arrayOf(MapObjectView()))
+        }
+        urls = mutableListOf<String>()
+        for (i in 1..5) {
+            urls.add(db.select("Pictures", "url").whereSimple("(building = 1) and (floor = $i)").parseList(StringParser).toString())
         }
         floorPicker.min = 1
-        floorPicker.max = currentBuilding.numberOfFloors
+        floorPicker.max = 5
         if (savedInstanceState != null) {
             floorPicker.value = savedInstanceState.getInt("currentFloor")
         }
         floorPicker.setValueChangedListener { value: Int, _ ->
             Glide.with(floorView)
-                    .load(mapView.pictures!![value - 1].url)
+                    .load(urls[value - 1])
                     .into(object : SimpleTarget<Drawable>() {
                         //I have no idea why it isnt working other way
                         override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
@@ -94,9 +99,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
         super.onResume()
-
         Glide.with(floorView)
-                .load(mapView.pictures!![floorPicker.value - 1].url)
+                .load(urls[floorPicker.value - 1])
                 .apply(RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL))
                 .into(object : SimpleTarget<Drawable>() {
                     //I have no idea why it isnt working other way

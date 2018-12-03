@@ -6,7 +6,7 @@ import com.google.gson.Gson
 import java.net.HttpURLConnection
 import java.net.URL
 
-class DownloadFloorImagesTask(val map: Int) : AsyncTask<String, Int, MapView>() {
+class DownloadMapViewsTask(val map: Int) : AsyncTask<String, Int, MapView>() {
 
 
     override fun doInBackground(vararg params: String?): MapView {
@@ -16,7 +16,7 @@ class DownloadFloorImagesTask(val map: Int) : AsyncTask<String, Int, MapView>() 
             publishProgress(10)
             val code = (this as? HttpURLConnection)?.responseCode
 
-            Log.d("DownloadFloorImagesTask", "Loaded with code $code")
+            Log.d("DownloadMapViewsTask", "Loaded with code $code")
 
             if (code!! < 200 || code > 299) {
                 return MapView()
@@ -26,7 +26,7 @@ class DownloadFloorImagesTask(val map: Int) : AsyncTask<String, Int, MapView>() 
         }
         publishProgress(50)
         val mapView: MapView = Gson().fromJson(response, MapView::class.java)
-        Log.d("DownloadFloorImagesTask", url.toString())
+        Log.d("DownloadMapViewsTask", url.toString())
         return mapView
     }
 }
