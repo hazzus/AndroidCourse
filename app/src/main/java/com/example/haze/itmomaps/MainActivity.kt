@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
+import android.util.Log
 import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
@@ -54,8 +55,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
         val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
         //TODO add InternetConnection Listener
+        db = MyDatabaseOpenHelper(applicationContext).writableDatabase
         if (isConnected) {
-            db = MyDatabaseOpenHelper(applicationContext).writableDatabase
             for (i in 1..1) {
                 val mapView = DownloadMapViewsTask(i).execute().get()
                 mapView.pictures!!.forEach {
@@ -63,10 +64,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
         }
-        urls = mutableListOf<String>()
+        urls = mutableListOf()
         for (i in 1..5) {
-            urls.add(db.select("Pictures", "url").whereSimple("(building = 1) and (floor = $i)").parseList(StringParser).toString())
+            urls.add(db.select("Pictures", "url").whereSimple("(building = 1) and (floor = $i)").parseSingle(StringParser).toString())
         }
+        Log.d("ololo", urls.toString())
         floorPicker.min = 1
         floorPicker.max = 5
         if (savedInstanceState != null) {
@@ -75,6 +77,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         floorPicker.setValueChangedListener { value: Int, _ ->
             Glide.with(floorView)
                     .load(urls[value - 1])
+                    .apply(RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL))
                     .into(object : SimpleTarget<Drawable>() {
                         //I have no idea why it isnt working other way
                         override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
@@ -99,6 +102,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
         super.onResume()
+        floorPicker
         Glide.with(floorView)
                 .load(urls[floorPicker.value - 1])
                 .apply(RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL))
