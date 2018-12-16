@@ -28,6 +28,7 @@ import kotlinx.android.synthetic.main.content_main.*
 import org.jetbrains.anko.db.StringParser
 import org.jetbrains.anko.db.insert
 import org.jetbrains.anko.db.select
+import kotlin.math.floor
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -141,7 +142,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     putExtra("x", x)
                     putExtra("y", y)
                     putExtra("floor", floorPicker.value)
-                    putExtra("location", Pair(x, y).toString())
+                    putExtra("location", Triple(x, y, floorPicker.value).toString())
                     putExtra("map", 1)
                 }
                 startActivity(intent)
@@ -149,14 +150,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.from -> {
                 val intent = Intent(this, RouteActivity::class.java).apply {
                     putExtra("building", buildingSelector.selectedItem.toString())
-                    putExtra("from", Pair(x, y).toString())
+                    putExtra("from", Triple(x, y, floorPicker.value).toString())
                 }
                 startActivity(intent)
             }
             R.id.to -> {
                 val intent = Intent(this, RouteActivity::class.java).apply {
                     putExtra("building", buildingSelector.selectedItem.toString())
-                    putExtra("to", Pair(x, y).toString())
+                    putExtra("to", Triple(x, y, floorPicker.value).toString())
                 }
                 startActivity(intent)
             }
@@ -167,7 +168,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     putExtra("x", x)
                     putExtra("y", y)
                     putExtra("floor", floorPicker.value)
-                    putExtra("location", Pair(x, y).toString())
+                    putExtra("location", Triple(x, y, floorPicker.value).toString())
                     putExtra("map", 1)
                 }
                 startActivity(intent)

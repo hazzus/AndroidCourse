@@ -5,9 +5,6 @@ import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.response
-import com.github.kittinunf.fuel.httpPost
 import kotlinx.android.synthetic.main.activity_leave_comment.*
 
 
@@ -48,6 +45,7 @@ class LeaveMapCommentActivity : AppCompatActivity() {
         val comment: String = this.comment.text.toString()
         val type: String = this.type.text.toString()
         // TODO fix this
+        /*
         Fuel.post("https://maps.brilzlian.me/v1/comments/$map/$floor/$x/$y")
                 .jsonBody(
                         """
@@ -62,6 +60,7 @@ class LeaveMapCommentActivity : AppCompatActivity() {
                     request, response, result ->
                     Log.d("LeaveMapCommentActivity", result.toString())
                 }
+        */
         // TODO if ok show it to user
         super.onBackPressed()
     }

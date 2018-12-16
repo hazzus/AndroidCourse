@@ -1,8 +1,11 @@
 package com.example.haze.itmomaps
 
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.haze.itmomaps.R.id.routes_recycle
 import kotlinx.android.synthetic.main.activity_show_routes.*
 
 class ShowRoutesActivity : AppCompatActivity() {
@@ -15,7 +18,7 @@ class ShowRoutesActivity : AppCompatActivity() {
 
         with(routes_recycle) {
             this.layoutManager = layoutManager
-            adapter = RouteAdapter(createRoutes(4, intent.extras))
+            adapter = RouteAdapter(createRoutes(1, intent.extras))
             setHasFixedSize(true)
         }
     }
@@ -33,5 +36,9 @@ class ShowRoutesActivity : AppCompatActivity() {
             }
         }
         return res
+    }
+
+    fun showRoute(view: View) {
+        Log.d("suka", "suka")
     }
 }

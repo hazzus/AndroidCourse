@@ -1,6 +1,5 @@
 package com.example.haze.itmomaps
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -25,6 +24,6 @@ class RouteAdapter(private val allRoutes: List<Route>) :
     override fun getItemCount() = allRoutes.size
 
     override fun onBindViewHolder(holder: RouteViewHolder, position: Int) {
-        holder.routeTitle.text = allRoutes[position].title()
+        holder.routeTitle.text = allRoutes[position].title() //.getRoute().joinToString(",", transform = {i -> i.toString()})
     }
 }
