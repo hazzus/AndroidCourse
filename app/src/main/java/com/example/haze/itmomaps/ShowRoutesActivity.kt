@@ -18,7 +18,7 @@ class ShowRoutesActivity : AppCompatActivity() {
 
         with(routes_recycle) {
             this.layoutManager = layoutManager
-            adapter = RouteAdapter(createRoutes(1, intent.extras))
+            adapter = RouteAdapter(createRoutes(1, intent.extras), {i -> showRoute(i)})
             setHasFixedSize(true)
         }
     }
@@ -38,7 +38,7 @@ class ShowRoutesActivity : AppCompatActivity() {
         return res
     }
 
-    fun showRoute(view: View) {
-        Log.d("suka", "suka")
+    private fun showRoute(route : Route) {
+
     }
 }

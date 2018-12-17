@@ -9,9 +9,13 @@ import kotlinx.android.synthetic.main.route_text_view.view.*
 
 class RouteViewHolder(val layout: LinearLayout) : RecyclerView.ViewHolder(layout) {
     val routeTitle: TextView = layout.route_title
+
+    fun bind(route : Route, clickListener: (Route) -> Unit) {
+        layout.setOnClickListener { clickListener(route) }
+    }
 }
 
-class RouteAdapter(private val allRoutes: List<Route>) :
+class RouteAdapter(private val allRoutes: List<Route>, private val clickListener : (Route) -> Unit) :
         RecyclerView.Adapter<RouteViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RouteViewHolder {
@@ -25,5 +29,6 @@ class RouteAdapter(private val allRoutes: List<Route>) :
 
     override fun onBindViewHolder(holder: RouteViewHolder, position: Int) {
         holder.routeTitle.text = allRoutes[position].title() //.getRoute().joinToString(",", transform = {i -> i.toString()})
+        holder.bind(allRoutes[position], clickListener)
     }
 }
