@@ -1,5 +1,6 @@
 package com.example.haze.itmomaps
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,6 +34,10 @@ class ShowRoutesActivity : AppCompatActivity() {
     }
 
     private fun showRoute(route : Route) {
-        //TODO run MainActivity with route showing
+        val path = route.getRoute().toTypedArray()
+        val intent = Intent(this, MainActivity::class.java).apply {
+            putExtra("path", path)
+        }
+        startActivity(intent)
     }
 }

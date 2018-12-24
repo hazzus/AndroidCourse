@@ -102,6 +102,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         buildingSelector.adapter = adapter
 
+
+        val path = intent.getParcelableArrayExtra("path")
+        // TODO draw the way from extra "path"
+
     }
 
     override fun onResume() {
