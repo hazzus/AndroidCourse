@@ -3,6 +3,7 @@ package com.example.haze.itmomaps.network
 import android.os.AsyncTask
 import android.util.Log
 import com.example.haze.itmomaps.ShowMapCommentsActivity
+import com.example.haze.itmomaps.models.MapObject
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_show_comments.*
 import java.lang.ref.WeakReference
@@ -10,11 +11,11 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
 
-class DownloadCommentsTask(val activity: WeakReference<ShowMapCommentsActivity>, val map: Int, val floor: Int, val x: Int, val y: Int) : AsyncTask<String, Int, ArrayList<CommentView>>() {
+class DownloadCommentsTask(val activity: WeakReference<ShowMapCommentsActivity>, val location: MapObject) : AsyncTask<String, Int, ArrayList<CommentView>>() {
     override fun doInBackground(vararg params: String?): ArrayList<CommentView> {
         val res = ArrayList<CommentView>()
         publishProgress(0)
-        val url = URL("https://maps.brilzlian.me/v1/comments/$map/$floor/$x/$y")
+        val url = URL("https://maps.brilzlian.me/v1/comments/$location")
         val response = url.openConnection().run {
             connect()
             publishProgress(10)

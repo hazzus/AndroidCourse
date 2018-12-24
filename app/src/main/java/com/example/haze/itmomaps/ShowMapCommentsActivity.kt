@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.haze.itmomaps.models.MapObject
 import com.example.haze.itmomaps.network.CommentView
 import com.example.haze.itmomaps.network.DownloadCommentsTask
 import kotlinx.android.synthetic.main.activity_show_comments.*
@@ -14,11 +15,7 @@ import java.util.*
 
 class ShowMapCommentsActivity : AppCompatActivity() {
 
-    var x: Int = 0
-    var y: Int = 0
-    var floor: Int = 0
-    var map: Int = 0
-    lateinit var locationName: String
+    lateinit var where: MapObject
     var comments: ArrayList<CommentView> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,16 +24,13 @@ class ShowMapCommentsActivity : AppCompatActivity() {
 
         val layoutManager = LinearLayoutManager(this)
 
-        x = intent.getIntExtra("x", 0)
-        y = intent.getIntExtra("y", 0)
-        map = intent.getIntExtra("map", 1)
-        locationName = intent.getStringExtra("location")
-        floor = intent.getIntExtra("floor", 1)
+
+        where = intent.getParcelableExtra("location")
 
         if (savedInstanceState?.containsKey("comments") != null) {
             comments = savedInstanceState.getParcelableArrayList("comments")!!
         } else {
-            DownloadCommentsTask(WeakReference(this), map, floor, x, y).execute()
+            DownloadCommentsTask(WeakReference(this), where).execute()
         }
 
         with(comment_recycler) {
@@ -46,7 +40,7 @@ class ShowMapCommentsActivity : AppCompatActivity() {
         }
 
         with(location) {
-            this.text = locationName
+            this.text = where.title()
         }
     }
 
@@ -60,11 +54,7 @@ class ShowMapCommentsActivity : AppCompatActivity() {
 
     fun leaveComment(view: View) {
         val intent = Intent(this, LeaveMapCommentActivity::class.java).apply {
-            putExtra("location", locationName)
-            putExtra("x", x)
-            putExtra("y", y)
-            putExtra("map", map)
-            putExtra("floor", floor)
+            putExtra("location", where)
         }
         startActivity(intent)
     }

@@ -3,53 +3,65 @@ package com.example.haze.itmomaps
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.haze.itmomaps.models.MapObject
 import kotlinx.android.synthetic.main.activity_route_view.*
 
 
 class RouteActivity : AppCompatActivity() {
 
-    private lateinit var building : String
-    private lateinit var from : TextView
-    private lateinit var to : TextView
+    private lateinit var buildingName: String
+    private var buildingId: Int = 1
+    private lateinit var fromView: TextView
+    private lateinit var toView: TextView
+    private var from: MapObject? = null
+    private var to: MapObject? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_route_view)
 
-        from = findViewById<TextView>(R.id.from)
-        to = findViewById<TextView>(R.id.to)
-        building = intent.getStringExtra("building")
+        buildingName = intent.getStringExtra("buildingName")
+        buildingId = intent.getIntExtra("buildingId", 1)
+
+        fromView = findViewById(R.id.from)
+        toView = findViewById(R.id.to)
 
         with(building_name) {
-            this.text = building
+            this.text = buildingName
         }
 
-        val from = intent.getStringExtra("from")
-        if (from != null) this.from.text = from
+        // TODO SELECTORS (NO OTHER WAY)
+        from = intent.getParcelableExtra("from")
+        if (from != null) {
+            fromView.text = from!!.title()
+        }
 
-        val to = intent.getStringExtra("to")
-        if (to != null) this.to.text = to
+        to = intent.getParcelableExtra("to")
+        if (to != null){
+            toView.text = to!!.title()
+        }
     }
 
     fun showRoutes(view: View) {
-        val from = this.from.text.toString()
-        val to = this.to.text.toString()
+        from = MapObject(buildingName, buildingId, fromView.text.toString())
+        to = MapObject(buildingName, buildingId, toView.text.toString())
         val intent = Intent(this, ShowRoutesActivity::class.java).apply {
             putExtra("from", from)
             putExtra("to", to)
-            putExtra("building", building)
         }
         startActivity(intent)
     }
 
 
     fun swapRoutes(view: View) {
-        val from = this.from.text.toString()
-        this.from.text = this.to.text.toString()
-        this.to.text = from
+        fromView.text = toView.text.toString() . also { toView.text = fromView.text.toString() }
+        /*
+        val from = fromView.text.toString()
+        fromView.text = toView.text.toString()
+        toView.text = from
+        */
     }
 
 }

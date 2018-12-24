@@ -19,6 +19,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
+import com.example.haze.itmomaps.models.Building
+import com.example.haze.itmomaps.models.MapObject
 import com.example.haze.itmomaps.network.DownloadMapViewsTask
 import com.github.chrisbanes.photoview.PhotoViewAttacher
 import com.google.android.material.navigation.NavigationView
@@ -28,7 +30,6 @@ import kotlinx.android.synthetic.main.content_main.*
 import org.jetbrains.anko.db.StringParser
 import org.jetbrains.anko.db.insert
 import org.jetbrains.anko.db.select
-import kotlin.math.floor
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -46,10 +47,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         fab.setOnClickListener {
 
             val intent = Intent(this, RouteActivity::class.java).apply {
-                putExtra("building", buildingSelector.selectedItem.toString())
+                putExtra("buildingName", buildingSelector.selectedItem.toString())
+                putExtra("buildingId", buildingSelector.selectedItemPosition + 1)
             }
             startActivity(intent)
         }
+
         val buildingNames = arrayOf("Kronverksky", "Lomonosova", "Grivcova")
 
         val connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -127,49 +130,44 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onContextItemSelected(item: MenuItem?): Boolean {
-        // TODO truncate, not round
-        var x: Int = (currentX * 100).toInt()
-        var y: Int = (currentY * 100).toInt()
-        // TODO get here the locationName, to pass it instead of Pair().toString()
+        val position = MapObject(
+                buildingSelector.selectedItem.toString(),
+                buildingSelector.selectedItemPosition + 1,
+                // TODO truncate, not round
+                (currentX * 100).toInt(),
+                (currentY * 100).toInt(),
+                floorPicker.value
+        )
         when (item!!.itemId) {
             // TODO get location name by coords
             // TODO get map Int by name of map
             R.id.comment -> {
-                // This mades comments web larger then route
-                x /= 4
-                y /= 4
+                position.convertToComment()
                 val intent = Intent(this, LeaveMapCommentActivity::class.java).apply {
-                    putExtra("x", x)
-                    putExtra("y", y)
-                    putExtra("floor", floorPicker.value)
-                    putExtra("location", Triple(x, y, floorPicker.value).toString())
-                    putExtra("map", 1)
+                    putExtra("location", position)
+                }
+                startActivity(intent)
+            }
+            R.id.view -> {
+                position.convertToComment()
+                val intent = Intent(this, ShowMapCommentsActivity::class.java).apply {
+                    putExtra("location", position)
                 }
                 startActivity(intent)
             }
             R.id.from -> {
                 val intent = Intent(this, RouteActivity::class.java).apply {
-                    putExtra("building", buildingSelector.selectedItem.toString())
-                    putExtra("from", Triple(x, y, floorPicker.value).toString())
+                    putExtra("buildingName", position.building)
+                    putExtra("buildingId", position.map)
+                    putExtra("from", position)
                 }
                 startActivity(intent)
             }
             R.id.to -> {
                 val intent = Intent(this, RouteActivity::class.java).apply {
-                    putExtra("building", buildingSelector.selectedItem.toString())
-                    putExtra("to", Triple(x, y, floorPicker.value).toString())
-                }
-                startActivity(intent)
-            }
-            R.id.view -> {
-                x /= 4
-                y /= 4
-                val intent = Intent(this, ShowMapCommentsActivity::class.java).apply {
-                    putExtra("x", x)
-                    putExtra("y", y)
-                    putExtra("floor", floorPicker.value)
-                    putExtra("location", Triple(x, y, floorPicker.value).toString())
-                    putExtra("map", 1)
+                    putExtra("buildingName", position.building)
+                    putExtra("buildingId", position.map)
+                    putExtra("to", position)
                 }
                 startActivity(intent)
             }

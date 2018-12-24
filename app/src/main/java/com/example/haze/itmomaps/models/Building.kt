@@ -1,4 +1,4 @@
-package com.example.haze.itmomaps
+package com.example.haze.itmomaps.models
 
 import com.example.haze.itmomaps.network.PictureView
 

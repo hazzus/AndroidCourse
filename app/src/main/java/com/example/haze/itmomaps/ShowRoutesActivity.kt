@@ -1,11 +1,10 @@
 package com.example.haze.itmomaps
 
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.haze.itmomaps.R.id.routes_recycle
+import com.example.haze.itmomaps.models.MapObject
+import com.example.haze.itmomaps.models.Route
 import kotlinx.android.synthetic.main.activity_show_routes.*
 
 class ShowRoutesActivity : AppCompatActivity() {
@@ -18,27 +17,22 @@ class ShowRoutesActivity : AppCompatActivity() {
 
         with(routes_recycle) {
             this.layoutManager = layoutManager
-            adapter = RouteAdapter(createRoutes(1, intent.extras), {i -> showRoute(i)})
+            adapter = RouteAdapter(createRoutes(1, intent.extras)) { i -> showRoute(i)}
             setHasFixedSize(true)
         }
     }
 
     private fun createRoutes(count: Int, extras: Bundle?): List<Route> {
-        // TODO rewrite for routes building algorithm
-        // extras are from and to
-
         val res = mutableListOf<Route>()
         repeat(count) {
             if (extras != null) {
-                res.add(Route(extras.get("from") as String,
-                        extras.get("to") as String,
-                        extras.get("building") as String))
+                res.add(Route(extras.get("from") as MapObject, extras.get("to") as MapObject))
             }
         }
         return res
     }
 
     private fun showRoute(route : Route) {
-
+        //TODO run MainActivity with route showing
     }
 }

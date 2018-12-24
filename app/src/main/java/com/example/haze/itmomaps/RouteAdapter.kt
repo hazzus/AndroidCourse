@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.haze.itmomaps.models.Route
 import kotlinx.android.synthetic.main.route_text_view.view.*
 
 class RouteViewHolder(val layout: LinearLayout) : RecyclerView.ViewHolder(layout) {
