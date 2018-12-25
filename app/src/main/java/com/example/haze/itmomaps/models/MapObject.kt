@@ -2,6 +2,7 @@ package com.example.haze.itmomaps.models
 
 import android.os.Parcel
 import android.os.Parcelable
+import java.util.*
 
 class MapObject(val building: String, val map: Int, var x: Int, var y: Int, val floor: Int) : Parcelable {
     constructor(parcel: Parcel) : this(
@@ -41,7 +42,22 @@ class MapObject(val building: String, val map: Int, var x: Int, var y: Int, val 
             return arrayOfNulls(size)
         }
     }
+
     override fun toString() = "$map/$x/$y/$floor" // NOTE only for web!!
+
+    override fun hashCode(): Int {
+        return ((((((x shl 7) or y) shl 5) or floor) shl 5) or map)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return if (other is MapObject) {
+            (other.x == this.x) and
+                    (other.y == this.y) and
+                    (other.map == this.map) and
+                    (other.building == this.building)
+        } else
+            false
+    }
 
     // TODO reimplement this to network getter
     fun title() = intArrayOf(x, y, floor).joinToString(separator = "; ", prefix = "$building (", postfix = ")")
