@@ -15,7 +15,7 @@ class CommentViewHolder(val layout: LinearLayout) : RecyclerView.ViewHolder(layo
     val type : TextView = layout.type
 }
 
-class CommentAdapter(private var allComments: List<CommentView>) :
+class CommentAdapter(private val allComments: List<CommentView>) :
         RecyclerView.Adapter<CommentViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {

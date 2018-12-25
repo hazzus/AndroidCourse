@@ -1,15 +1,21 @@
 package com.example.haze.itmomaps.models
 
+import java.lang.Exception
+import java.lang.RuntimeException
 import java.util.*
 import kotlin.collections.HashMap
 
+class WrongMappingException(message: String) : Exception(message)
 
 class Route(val from: MapObject, val to: MapObject) {
 
     private val parent = HashMap<MapObject, MapObject>()
 
     init {
-        assert(from.map == to.map) // NOTE no ways from different buildings!
+        if (from.map != to.map) {
+            throw WrongMappingException("Route from different buildings")
+            // TODO Do something to show it to user
+        }
         val floors = from.getMaxFloor()
         // BFS
 

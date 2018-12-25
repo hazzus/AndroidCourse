@@ -3,7 +3,6 @@ package com.example.haze.itmomaps.models
 import android.os.Parcel
 import android.os.Parcelable
 
-
 class MapObject(val building: String, val map: Int, var x: Int, var y: Int, val floor: Int) : Parcelable {
     constructor(parcel: Parcel) : this(
             parcel.readString(),

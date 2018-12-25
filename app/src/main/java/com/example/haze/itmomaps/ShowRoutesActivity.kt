@@ -2,10 +2,12 @@ package com.example.haze.itmomaps
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.haze.itmomaps.models.MapObject
 import com.example.haze.itmomaps.models.Route
+import com.example.haze.itmomaps.models.WrongMappingException
 import kotlinx.android.synthetic.main.activity_show_routes.*
 
 class ShowRoutesActivity : AppCompatActivity() {
@@ -18,7 +20,7 @@ class ShowRoutesActivity : AppCompatActivity() {
 
         with(routes_recycle) {
             this.layoutManager = layoutManager
-            adapter = RouteAdapter(createRoutes(1, intent.extras)) { i -> showRoute(i)}
+            adapter = RouteAdapter(createRoutes(1, intent.extras), ::showRoute)
             setHasFixedSize(true)
         }
     }
@@ -27,7 +29,12 @@ class ShowRoutesActivity : AppCompatActivity() {
         val res = mutableListOf<Route>()
         repeat(count) {
             if (extras != null) {
-                res.add(Route(extras.get("from") as MapObject, extras.get("to") as MapObject))
+                try {
+                    res.add(Route(extras.get("from") as MapObject, extras.get("to") as MapObject))
+                } catch (error: WrongMappingException) {
+                    // TODO say user it is wrong
+                    Log.e("Route", error.toString())
+                }
             }
         }
         return res
