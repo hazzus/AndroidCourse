@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
-import android.util.Log
 import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
@@ -27,15 +26,13 @@ import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
-import org.jetbrains.anko.db.StringParser
-import org.jetbrains.anko.db.insert
-import org.jetbrains.anko.db.select
+import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var currentBuilding: Building
-    private lateinit var urls: MutableList<String>
-    private lateinit var db: SQLiteDatabase
+    lateinit var urls: MutableList<String>
+    lateinit var db: SQLiteDatabase
     private var currentX: Float = 0.0f
     private var currentY: Float = 0.0f
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,39 +52,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val buildingNames = arrayOf("Kronverksky", "Lomonosova", "Grivcova")
 
-        val connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
-        val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
-        //TODO add InternetConnection Listener
-        db = MyDatabaseOpenHelper(applicationContext).writableDatabase
-        if (isConnected) {
-            for (i in 1..1) {
-                val mapView = DownloadMapViewsTask(i).execute().get()
-                mapView.pictures!!.forEach {
-                    db.insert("Pictures", "building" to Integer.valueOf(i), "floor" to Integer.valueOf(it.floor!!), "url" to it.url)
-                }
-            }
-        }
-        urls = mutableListOf()
-        for (i in 1..5) {
-            urls.add(db.select("Pictures", "url").whereSimple("(building = 1) and (floor = $i)").parseSingle(StringParser).toString())
-        }
-        Log.d("ololo", urls.toString())
+
+
         floorPicker.min = 1
         floorPicker.max = 5
         if (savedInstanceState != null) {
             floorPicker.value = savedInstanceState.getInt("currentFloor")
         }
         floorPicker.setValueChangedListener { value: Int, _ ->
-            Glide.with(floorView)
-                    .load(urls[value - 1])
-                    .apply(RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL))
-                    .into(object : SimpleTarget<Drawable>() {
-                        //I have no idea why it isnt working other way
-                        override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-                            floorView.setImageDrawable(resource)
-                        }
-                    })
+            getPictureWithGlide(value - 1)
         }
 
         registerForContextMenu(floorView)
@@ -110,9 +83,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
         super.onResume()
-        floorPicker
+        val connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+        val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
+        //TODO add InternetConnection Listener
+        db = MyDatabaseOpenHelper(applicationContext).writableDatabase
+        urls = mutableListOf()
+        if (isConnected) {
+            for (i in 1..1) {
+                DownloadMapViewsTask(WeakReference(this), i).execute()
+            }
+        }
+        try {
+            SetImagesFromDatabase(WeakReference(this)).execute()
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            //TODO process case when there is no cached data and no internet connection
+        }
+    }
+
+    fun getPictureWithGlide(i: Int) {
         Glide.with(floorView)
-                .load(urls[floorPicker.value - 1])
+                .load(urls[i])
                 .apply(RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL))
                 .into(object : SimpleTarget<Drawable>() {
                     //I have no idea why it isnt working other way
@@ -121,7 +112,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
                 })
     }
-
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
