@@ -53,6 +53,7 @@ class MapObject(val building: String, val map: Int, var x: Int, var y: Int, val 
         return if (other is MapObject) {
             (other.x == this.x) and
                     (other.y == this.y) and
+                    (other.floor == this.floor) and
                     (other.map == this.map) and
                     (other.building == this.building)
         } else
@@ -74,7 +75,7 @@ class MapObject(val building: String, val map: Int, var x: Int, var y: Int, val 
 
     fun isStair(): Boolean {
         // TODO implement this
-        return false
+        return true
     }
 
     fun isCorridor(): Boolean {

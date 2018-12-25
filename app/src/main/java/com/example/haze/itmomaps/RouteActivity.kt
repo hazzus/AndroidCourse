@@ -56,7 +56,7 @@ class RouteActivity : AppCompatActivity() {
         return arrayOf(
                 MapObject(buildingName, buildingId, 0, 0, 1),
                 MapObject(buildingName, buildingId, 10, 10, 1),
-                MapObject(buildingName, buildingId, 40, 40, 1)
+                MapObject(buildingName, buildingId, 40, 40, 3)
         )
     }
 
@@ -70,12 +70,10 @@ class RouteActivity : AppCompatActivity() {
 
 
     fun swapRoutes(view: View) {
-        fromView.text = toView.text.toString() . also { toView.text = fromView.text.toString() }
-        /*
-        val from = fromView.text.toString()
-        fromView.text = toView.text.toString()
-        toView.text = from
-        */
+        val fromPos = from.selectedItemPosition
+        val toPos = to.selectedItemPosition
+        from.setSelection(toPos)
+        to.setSelection(fromPos)
     }
 
 }

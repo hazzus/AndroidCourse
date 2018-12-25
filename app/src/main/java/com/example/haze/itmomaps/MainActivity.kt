@@ -3,10 +3,14 @@ package com.example.haze.itmomaps
 import android.content.Context
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
@@ -25,7 +29,8 @@ import com.github.chrisbanes.photoview.PhotoViewAttacher
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
-import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.floor_content.*
+import java.lang.Float.min
 import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -35,6 +40,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var db: SQLiteDatabase
     private var currentX: Float = 0.0f
     private var currentY: Float = 0.0f
+    private var path: Array<Parcelable>? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -59,6 +66,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (savedInstanceState != null) {
             floorPicker.value = savedInstanceState.getInt("currentFloor")
         }
+        path = intent.getParcelableArrayExtra("path")
+
         floorPicker.setValueChangedListener { value: Int, _ ->
             getPictureWithGlide(value - 1)
         }
@@ -74,10 +83,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val adapter = ArrayAdapter(this, R.layout.building_spinner_item, buildingNames)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         buildingSelector.adapter = adapter
-
-
-        val path = intent.getParcelableArrayExtra("path")
-        // TODO draw the way from extra "path"
 
     }
 
@@ -101,6 +106,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    private fun drawTheWay(resource: BitmapDrawable): BitmapDrawable {
+        val bm = resource.bitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
+        bm.prepareToDraw()
+        val canvas = Canvas(bm)
+        val paint = Paint()
+        val blockWidth = canvas.width / 100F
+        val blockHeight = canvas.height / 100F
+        val radius = 0.6F * if (blockWidth > blockHeight) blockHeight else blockWidth
+        for (obj in this.path!!) {
+            if (obj is MapObject)
+                if (obj.floor == floorPicker.value) {
+                    val drawX = (obj.x + 0.5F) * blockWidth
+                    val drawY = (obj.y + 0.5F) * blockHeight
+                    canvas.drawCircle(drawX, drawY, radius, paint)
+                }
+        }
+        return BitmapDrawable(resources, bm)
+    }
+
+
     fun getPictureWithGlide(i: Int) {
         Glide.with(floorView)
                 .load(urls[i])
@@ -108,7 +133,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .into(object : SimpleTarget<Drawable>() {
                     //I have no idea why it isnt working other way
                     override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-                        floorView.setImageDrawable(resource)
+                        var res = resource as BitmapDrawable
+                        if (path != null)
+                            res = drawTheWay(res)
+                        floorView.setImageDrawable(res as Drawable)
                     }
                 })
     }
