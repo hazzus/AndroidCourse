@@ -36,7 +36,7 @@ class ShowMapCommentsActivity : AppCompatActivity() {
         if (savedInstanceState?.containsKey("comments") != null) {
             comments = savedInstanceState.getParcelableArrayList("comments")!!
         } else if (isConnected) {
-            //TODO let user know that there is no possibility to donload comments
+            //TODO (UI) let user know that there is no possibility to download comments
             DownloadCommentsTask(WeakReference(this), where).execute()
         }
 
@@ -47,7 +47,7 @@ class ShowMapCommentsActivity : AppCompatActivity() {
         }
 
         with(location) {
-            this.text = where.title()
+            this.text = where.toString()
         }
     }
 

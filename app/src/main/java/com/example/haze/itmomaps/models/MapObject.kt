@@ -2,7 +2,6 @@ package com.example.haze.itmomaps.models
 
 import android.os.Parcel
 import android.os.Parcelable
-import java.util.*
 
 class MapObject(val building: String, val map: Int, var x: Int, var y: Int, val floor: Int) : Parcelable {
     constructor(parcel: Parcel) : this(
@@ -11,15 +10,6 @@ class MapObject(val building: String, val map: Int, var x: Int, var y: Int, val 
             parcel.readInt(),
             parcel.readInt(),
             parcel.readInt())
-
-    constructor(name: String, map: Int, s: String) : this(
-            name,
-            map,
-            1,
-            1,
-            1
-            //TODO implement fromString or rewrite RouteActivity to selectors
-    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(building)
@@ -43,8 +33,6 @@ class MapObject(val building: String, val map: Int, var x: Int, var y: Int, val 
         }
     }
 
-    override fun toString() = "$map/$x/$y/$floor" // NOTE only for web!!
-
     override fun hashCode(): Int {
         return ((((((x shl 7) or y) shl 5) or floor) shl 5) or map)
     }
@@ -60,13 +48,16 @@ class MapObject(val building: String, val map: Int, var x: Int, var y: Int, val 
             false
     }
 
-    // TODO reimplement this to network getter
-    fun title() = intArrayOf(x, y, floor).joinToString(separator = "; ", prefix = "$building (", postfix = ")")
-
     fun convertToComment() {
         x /= 4
         y /= 4
     }
+
+    fun toWebString() = "$map/$x/$y/$floor"
+
+    // TODO (NETWORK) pre-download all lower
+    override fun toString() = intArrayOf(x, y, floor).joinToString(separator = "; ", prefix = "$building (", postfix = ")")
+
 
     fun getMaxFloor(): Int {
         // TODO implement this

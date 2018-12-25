@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.haze.itmomaps.models.MapObject
+import com.example.haze.itmomaps.models.NoSuchWayException
 import com.example.haze.itmomaps.models.Route
 import com.example.haze.itmomaps.models.WrongMappingException
 import kotlinx.android.synthetic.main.activity_show_routes.*
@@ -32,7 +33,7 @@ class ShowRoutesActivity : AppCompatActivity() {
                 try {
                     res.add(Route(extras.get("from") as MapObject, extras.get("to") as MapObject))
                 } catch (error: WrongMappingException) {
-                    // TODO say user it is wrong
+                    // TODO (UI) say user it is wrong dests
                     Log.e("Route", error.toString())
                 }
             }
@@ -41,10 +42,15 @@ class ShowRoutesActivity : AppCompatActivity() {
     }
 
     private fun showRoute(route : Route) {
-        val path = route.getRoute().toTypedArray()
-        val intent = Intent(this, MainActivity::class.java).apply {
-            putExtra("path", path)
+        try {
+            val path = route.getRoute().toTypedArray()
+            val intent = Intent(this, MainActivity::class.java).apply {
+                putExtra("path", path)
+            }
+            startActivity(intent)
+        } catch (error: NoSuchWayException) {
+            // TODO (UI) say user no such way
+            Log.e("Route", error.toString())
         }
-        startActivity(intent)
     }
 }

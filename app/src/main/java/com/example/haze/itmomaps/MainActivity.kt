@@ -66,10 +66,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (savedInstanceState != null) {
             floorPicker.value = savedInstanceState.getInt("currentFloor")
         }
-        path = intent.getParcelableArrayExtra("path")
 
         floorPicker.setValueChangedListener { value: Int, _ ->
             getPictureWithGlide(value - 1)
+        }
+
+        path = intent.getParcelableArrayExtra("path")
+        if (path != null) {
+            val first = path!![0]
+            if (first is MapObject)
+                floorPicker.value = first.floor
         }
 
         registerForContextMenu(floorView)
@@ -102,7 +108,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         try {
             SetImagesFromDatabase(WeakReference(this)).execute()
         } catch (e: ArrayIndexOutOfBoundsException) {
-            //TODO process case when there is no cached data and no internet connection
+            //TODO (UI) process case when there is no cached data and no internet connection
         }
     }
 
@@ -155,14 +161,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val position = MapObject(
                 buildingSelector.selectedItem.toString(),
                 buildingSelector.selectedItemPosition + 1,
-                // TODO truncate, not round
                 (currentX * 100).toInt(),
                 (currentY * 100).toInt(),
                 floorPicker.value
         )
         when (item!!.itemId) {
-            // TODO get location name by coords
-            // TODO get map Int by name of map
             R.id.comment -> {
                 position.convertToComment()
                 val intent = Intent(this, LeaveMapCommentActivity::class.java).apply {

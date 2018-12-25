@@ -28,8 +28,6 @@ class RouteActivity : AppCompatActivity() {
             this.text = buildingName
         }
 
-        // TODO SELECTORS (NO OTHER WAY)
-
         val allObjects = getMapObjects()
 
         val adapter = ArrayAdapter(this, R.layout.map_object_spinner_item, allObjects)
@@ -52,7 +50,7 @@ class RouteActivity : AppCompatActivity() {
     }
 
     private fun getMapObjects() : Array<MapObject> {
-        // TODO implement this network messages
+        // TODO (NETWORK) implement this network messages
         return arrayOf(
                 MapObject(buildingName, buildingId, 0, 0, 1),
                 MapObject(buildingName, buildingId, 10, 10, 1),

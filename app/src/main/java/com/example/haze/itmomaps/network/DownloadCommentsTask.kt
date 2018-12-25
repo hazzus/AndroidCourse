@@ -15,7 +15,7 @@ class DownloadCommentsTask(val activity: WeakReference<ShowMapCommentsActivity>,
     override fun doInBackground(vararg params: String?): ArrayList<CommentView> {
         val res = ArrayList<CommentView>()
         publishProgress(0)
-        val url = URL("https://maps.brilzlian.me/v1/comments/$location")
+        val url = URL("https://maps.brilzlian.me/v1/comments/${location.toWebString()}")
         val response = url.openConnection().run {
             connect()
             publishProgress(10)

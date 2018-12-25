@@ -6,6 +6,7 @@ import java.util.*
 import kotlin.collections.HashMap
 
 class WrongMappingException(message: String) : Exception(message)
+class NoSuchWayException(message: String) : Exception(message)
 
 class Route(val from: MapObject, val to: MapObject) {
 
@@ -14,7 +15,6 @@ class Route(val from: MapObject, val to: MapObject) {
     init {
         if (from.map != to.map) {
             throw WrongMappingException("Route from different buildings")
-            // TODO Do something to show it to user
         }
         val floors = from.getMaxFloor()
         // BFS
@@ -58,12 +58,16 @@ class Route(val from: MapObject, val to: MapObject) {
         val res : MutableList<MapObject> = mutableListOf()
         res.add(cur)
         while (cur != from) {
-            // TODO if null -- no way, tell user about it
-            cur = parent[cur]!!
+            try {
+                cur = parent[cur]!!
+            } catch (error: KotlinNullPointerException) {
+                throw NoSuchWayException("No such way from $from to $to")
+            }
             res.add(cur)
         }
         return res.asReversed()
     }
 
-    fun title() = "from ${from.title()} to ${to.title()}"
+    fun title() = "from $from to $to"
 }
+

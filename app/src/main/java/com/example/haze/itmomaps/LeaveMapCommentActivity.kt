@@ -19,7 +19,7 @@ class LeaveMapCommentActivity : AppCompatActivity() {
         where = intent.getParcelableExtra("location")
 
         with(location) {
-            this.text = where.title()
+            this.text = where.toString()
         }
 
     }
@@ -28,8 +28,8 @@ class LeaveMapCommentActivity : AppCompatActivity() {
         val author: String = author.text.toString()
         val comment: String = body.text.toString()
         val type: String = type.text.toString()
-        // TODO post method for this shit
-        // TODO if ok show it to user
+        // TODO (NETWORK) implement post method for this shit
+        // TODO (UI) if ok show it to user
         super.onBackPressed()
     }
 
