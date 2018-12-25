@@ -1,6 +1,9 @@
 package com.example.haze.itmomaps
 
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -27,9 +30,13 @@ class ShowMapCommentsActivity : AppCompatActivity() {
 
         where = intent.getParcelableExtra("location")
 
+        val connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+        val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
         if (savedInstanceState?.containsKey("comments") != null) {
             comments = savedInstanceState.getParcelableArrayList("comments")!!
-        } else {
+        } else if (isConnected) {
+            //TODO let user know that there is no possibility to donload comments
             DownloadCommentsTask(WeakReference(this), where).execute()
         }
 
