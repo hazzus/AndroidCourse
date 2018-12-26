@@ -1,8 +1,14 @@
 package com.example.haze.itmomaps
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.haze.itmomaps.models.MapObject
+import com.example.haze.itmomaps.models.NoSuchWayException
+import com.example.haze.itmomaps.models.Route
+import com.example.haze.itmomaps.models.WrongMappingException
 import kotlinx.android.synthetic.main.activity_show_routes.*
 
 class ShowRoutesActivity : AppCompatActivity() {
@@ -15,23 +21,36 @@ class ShowRoutesActivity : AppCompatActivity() {
 
         with(routes_recycle) {
             this.layoutManager = layoutManager
-            adapter = RouteAdapter(createRoutes(4, intent.extras))
+            adapter = RouteAdapter(createRoutes(1, intent.extras), ::showRoute)
             setHasFixedSize(true)
         }
     }
 
     private fun createRoutes(count: Int, extras: Bundle?): List<Route> {
-        // TODO rewrite for routes building algorithm
-        // extras are from and to
-
         val res = mutableListOf<Route>()
         repeat(count) {
             if (extras != null) {
-                res.add(Route(extras.get("from") as String,
-                        extras.get("to") as String,
-                        extras.get("building") as String))
+                try {
+                    res.add(Route(extras.get("from") as MapObject, extras.get("to") as MapObject))
+                } catch (error: WrongMappingException) {
+                    // TODO (UI) say user it is wrong dests
+                    Log.e("Route", error.toString())
+                }
             }
         }
         return res
+    }
+
+    private fun showRoute(route : Route) {
+        try {
+            val path = route.getRoute().toTypedArray()
+            val intent = Intent(this, MainActivity::class.java).apply {
+                putExtra("path", path)
+            }
+            startActivity(intent)
+        } catch (error: NoSuchWayException) {
+            // TODO (UI) say user no such way
+            Log.e("Route", error.toString())
+        }
     }
 }

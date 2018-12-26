@@ -1,61 +1,81 @@
 package com.example.haze.itmomaps
 
+import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
+import android.database.sqlite.SQLiteDatabase
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
+import com.example.haze.itmomaps.models.Building
+import com.example.haze.itmomaps.models.MapObject
+import com.example.haze.itmomaps.network.DownloadMapViewsTask
 import com.github.chrisbanes.photoview.PhotoViewAttacher
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
-import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.floor_content.*
+import java.lang.Float.min
+import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var currentBuilding: Building
-
+    lateinit var urls: MutableList<String>
+    lateinit var db: SQLiteDatabase
     private var currentX: Float = 0.0f
     private var currentY: Float = 0.0f
+    private var path: Array<Parcelable>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
         fab.setOnClickListener {
+
             val intent = Intent(this, RouteActivity::class.java).apply {
-                putExtra("building", buildingSelector.selectedItem.toString())
+                putExtra("buildingName", buildingSelector.selectedItem.toString())
+                putExtra("buildingId", buildingSelector.selectedItemPosition + 1)
             }
             startActivity(intent)
         }
 
-        val buildingNames = arrayOf("Kronv", "Lomo", "Grivc")
-        // THIS TAKES REALLY FUCKING BIG MEMORY
-        // TODO fix this t  o server download
-        currentBuilding = Building("EATMore",
-                arrayOf(
-                        R.drawable.floor1,
-                        R.drawable.floor2,
-                        R.drawable.floor3,
-                        R.drawable.floor4,
-                        R.drawable.floor5),
-                5)
+        val buildingNames = arrayOf("Kronverksky", "Lomonosova", "Grivcova")
+
 
 
         floorPicker.min = 1
-        floorPicker.max = currentBuilding.numberOfFloors
+        floorPicker.max = 5
         if (savedInstanceState != null) {
             floorPicker.value = savedInstanceState.getInt("currentFloor")
         }
+
         floorPicker.setValueChangedListener { value: Int, _ ->
-            val oldBitmap = (floorView.drawable as BitmapDrawable).bitmap
-            oldBitmap.recycle()
-            val newBitmap = BitmapFactory.decodeResource(resources, currentBuilding.floors[value - 1])
-            floorView.setImageBitmap(newBitmap)
+            getPictureWithGlide(value - 1)
+        }
+
+        path = intent.getParcelableArrayExtra("path")
+        if (path != null) {
+            val first = path!![0]
+            if (first is MapObject)
+                floorPicker.value = first.floor
         }
 
         registerForContextMenu(floorView)
@@ -74,12 +94,57 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
         super.onResume()
-        floorView.setImageBitmap(BitmapFactory.decodeResource(resources, currentBuilding.floors[floorPicker.value - 1]))
+        val connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+        val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
+        //TODO add InternetConnection Listener
+        db = MyDatabaseOpenHelper(applicationContext).writableDatabase
+        urls = mutableListOf()
+        if (isConnected) {
+            for (i in 1..1) {
+                DownloadMapViewsTask(WeakReference(this), i).execute()
+            }
+        }
+        try {
+            SetImagesFromDatabase(WeakReference(this)).execute()
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            //TODO (UI) process case when there is no cached data and no internet connection
+        }
     }
 
-    override fun onStop() {
-        super.onStop()
-        (floorView.drawable as BitmapDrawable).bitmap.recycle()
+    private fun drawTheWay(resource: BitmapDrawable): BitmapDrawable {
+        val bm = resource.bitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
+        bm.prepareToDraw()
+        val canvas = Canvas(bm)
+        val paint = Paint()
+        val blockWidth = canvas.width / 100F
+        val blockHeight = canvas.height / 100F
+        val radius = 0.5F * if (blockWidth > blockHeight) blockHeight else blockWidth
+        for (obj in this.path!!) {
+            if (obj is MapObject)
+                if (obj.floor == floorPicker.value) {
+                    val drawX = (obj.x + 0.5F) * blockWidth
+                    val drawY = (obj.y + 0.5F) * blockHeight
+                    canvas.drawCircle(drawX, drawY, radius, paint)
+                }
+        }
+        return BitmapDrawable(resources, bm)
+    }
+
+
+    fun getPictureWithGlide(i: Int) {
+        Glide.with(floorView)
+                .load(urls[i])
+                .apply(RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL))
+                .into(object : SimpleTarget<Drawable>() {
+                    //I have no idea why it isnt working other way
+                    override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                        var res = resource as BitmapDrawable
+                        if (path != null)
+                            res = drawTheWay(res)
+                        floorView.setImageDrawable(res as Drawable)
+                    }
+                })
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -93,31 +158,41 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onContextItemSelected(item: MenuItem?): Boolean {
-        // TODO change location and destination to coordinates ot map objects
+        val position = MapObject(
+                buildingSelector.selectedItem.toString(),
+                buildingSelector.selectedItemPosition + 1,
+                (currentX * 100).toInt(),
+                (currentY * 100).toInt(),
+                floorPicker.value
+        )
         when (item!!.itemId) {
             R.id.comment -> {
+                position.convertToComment()
                 val intent = Intent(this, LeaveMapCommentActivity::class.java).apply {
-                    putExtra("where", Pair(currentX, currentY).toString())
+                    putExtra("location", position)
+                }
+                startActivity(intent)
+            }
+            R.id.view -> {
+                position.convertToComment()
+                val intent = Intent(this, ShowMapCommentsActivity::class.java).apply {
+                    putExtra("location", position)
                 }
                 startActivity(intent)
             }
             R.id.from -> {
                 val intent = Intent(this, RouteActivity::class.java).apply {
-                    putExtra("building", buildingSelector.selectedItem.toString())
-                    putExtra("from", Pair(currentX, currentY).toString())
+                    putExtra("buildingName", position.building)
+                    putExtra("buildingId", position.map)
+                    putExtra("from", position)
                 }
                 startActivity(intent)
             }
             R.id.to -> {
                 val intent = Intent(this, RouteActivity::class.java).apply {
-                    putExtra("building", buildingSelector.selectedItem.toString())
-                    putExtra("to", Pair(currentX, currentY).toString())
-                }
-                startActivity(intent)
-            }
-            R.id.view -> {
-                val intent = Intent(this, ShowMapCommentsActivity::class.java).apply {
-                    putExtra("where", Pair(currentX, currentY).toString())
+                    putExtra("buildingName", position.building)
+                    putExtra("buildingId", position.map)
+                    putExtra("to", position)
                 }
                 startActivity(intent)
             }
@@ -159,4 +234,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
     }
+
+
 }
