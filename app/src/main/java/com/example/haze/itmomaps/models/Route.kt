@@ -1,12 +1,24 @@
 package com.example.haze.itmomaps.models
 
 import java.lang.Exception
-import java.lang.RuntimeException
+import java.lang.Math.abs
 import java.util.*
+import kotlin.Comparator
 import kotlin.collections.HashMap
 
 class WrongMappingException(message: String) : Exception(message)
 class NoSuchWayException(message: String) : Exception(message)
+
+class RouteBuildingComparator(private val dest: MapObject) : Comparator<MapObject> {
+    private fun distance(o1: MapObject?) : Int {
+        return abs(o1!!.x - dest.x) + abs(o1.y - dest.y) + abs(o1.floor - dest.floor)
+    }
+
+    override fun compare(o1: MapObject?, o2: MapObject?): Int {
+        return distance(o1) - distance(o2)
+    }
+
+}
 
 class Route(val from: MapObject, val to: MapObject) {
 
@@ -21,11 +33,11 @@ class Route(val from: MapObject, val to: MapObject) {
 
         //floor starts with 0
         val visited = Array(100) { Array(100) { Array(floors + 1) { false } } }
-        val q = ArrayDeque<MapObject>()
+        val q = PriorityQueue<MapObject>(100, RouteBuildingComparator(to))
         visited[from.x][from.y][from.floor] = true
-        q.addLast(from)
+        q.add(from)
         while (!q.isEmpty()) {
-            val cur = q.pop()
+            val cur = q.poll()
             if (cur == to)
                 break
             for (i in -1..1) {
@@ -33,7 +45,7 @@ class Route(val from: MapObject, val to: MapObject) {
                     if (cur.x + i in 0..99 && cur.y + j in 0..99) {
                         val next = MapObject(cur.building, cur.map, cur.x + i, cur.y + j, cur.floor)
                         if (next.isCorridor() && !visited[next.x][next.y][next.floor]) {
-                            q.addLast(next)
+                            q.add(next)
                             parent[next] = cur
                             visited[next.x][next.y][next.floor] = true
                         }
@@ -44,7 +56,7 @@ class Route(val from: MapObject, val to: MapObject) {
                 for (k in -1..1) {
                     val next = MapObject(cur.building, cur.map, cur.x, cur.y, cur.floor + k)
                     if (next.floor in 1..floors && !visited[next.x][next.y][next.floor]) {
-                        q.addLast(next)
+                        q.add(next)
                         parent[next] = cur
                         visited[next.x][next.y][next.floor] = true
                     }

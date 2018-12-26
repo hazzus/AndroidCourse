@@ -119,7 +119,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val paint = Paint()
         val blockWidth = canvas.width / 100F
         val blockHeight = canvas.height / 100F
-        val radius = 0.6F * if (blockWidth > blockHeight) blockHeight else blockWidth
+        val radius = 0.5F * if (blockWidth > blockHeight) blockHeight else blockWidth
         for (obj in this.path!!) {
             if (obj is MapObject)
                 if (obj.floor == floorPicker.value) {

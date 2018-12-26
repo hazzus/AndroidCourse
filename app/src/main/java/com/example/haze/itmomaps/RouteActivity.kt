@@ -54,7 +54,9 @@ class RouteActivity : AppCompatActivity() {
         return arrayOf(
                 MapObject(buildingName, buildingId, 0, 0, 1),
                 MapObject(buildingName, buildingId, 10, 10, 1),
-                MapObject(buildingName, buildingId, 40, 40, 3)
+                MapObject(buildingName, buildingId, 40, 40, 3),
+                MapObject(buildingName, buildingId, 8, 56, 1),
+                MapObject(buildingName, buildingId, 6, 76, 1)
         )
     }
 

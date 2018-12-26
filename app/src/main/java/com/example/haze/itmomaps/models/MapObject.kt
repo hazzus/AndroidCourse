@@ -66,7 +66,7 @@ class MapObject(val building: String, val map: Int, var x: Int, var y: Int, val 
 
     fun isStair(): Boolean {
         // TODO implement this
-        return true
+        return false
     }
 
     fun isCorridor(): Boolean {
