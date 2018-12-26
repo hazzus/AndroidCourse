@@ -3,6 +3,7 @@ package com.example.haze.itmomaps
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.haze.itmomaps.models.MapObject
@@ -33,7 +34,7 @@ class ShowRoutesActivity : AppCompatActivity() {
                 try {
                     res.add(Route(extras.get("from") as MapObject, extras.get("to") as MapObject))
                 } catch (error: WrongMappingException) {
-                    // TODO (UI) say user it is wrong dests
+                    Toast.makeText(applicationContext, "Can't build routes between different buildings", Toast.LENGTH_LONG).show()
                     Log.e("Route", error.toString())
                 }
             }
@@ -49,7 +50,7 @@ class ShowRoutesActivity : AppCompatActivity() {
             }
             startActivity(intent)
         } catch (error: NoSuchWayException) {
-            // TODO (UI) say user no such way
+            Toast.makeText(applicationContext, error.message, Toast.LENGTH_LONG).show()
             Log.e("Route", error.toString())
         }
     }

@@ -15,6 +15,7 @@ import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import com.bumptech.glide.Glide
@@ -35,7 +36,6 @@ import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private lateinit var currentBuilding: Building
     lateinit var urls: MutableList<String>
     lateinit var db: SQLiteDatabase
     private var currentX: Float = 0.0f
@@ -108,7 +108,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         try {
             SetImagesFromDatabase(WeakReference(this)).execute()
         } catch (e: ArrayIndexOutOfBoundsException) {
-            //TODO (UI) process case when there is no cached data and no internet connection
+            // TODO Maybe another way, toast is not long
+            Toast.makeText(applicationContext, "No internet connection, can't download images", Toast.LENGTH_LONG).show()
         }
     }
 
