@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.haze.itmomaps.network.CommentView
+import com.example.haze.itmomaps.models.ReceivedComment
 import kotlinx.android.synthetic.main.comment_view.view.*
 
 
@@ -15,7 +15,7 @@ class CommentViewHolder(val layout: LinearLayout) : RecyclerView.ViewHolder(layo
     val type : TextView = layout.type
 }
 
-class CommentAdapter(private val allComments: List<CommentView>) :
+class CommentAdapter(private val allReceivedComments: List<ReceivedComment>) :
         RecyclerView.Adapter<CommentViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
@@ -25,10 +25,10 @@ class CommentAdapter(private val allComments: List<CommentView>) :
         return CommentViewHolder(layout)
     }
 
-    override fun getItemCount() = allComments.size
+    override fun getItemCount() = allReceivedComments.size
 
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
-        val comment = allComments[position]
+        val comment = allReceivedComments[position]
         holder.author.text = comment.name
         holder.body.text = comment.comment
         holder.type.text = comment.type

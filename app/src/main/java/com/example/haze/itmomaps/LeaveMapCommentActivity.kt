@@ -1,10 +1,14 @@
 package com.example.haze.itmomaps
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
-import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.haze.itmomaps.api.MapsRepositoryProvider
 import com.example.haze.itmomaps.models.MapObject
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_leave_comment.*
 
 
@@ -28,8 +32,21 @@ class LeaveMapCommentActivity : AppCompatActivity() {
         val author: String = author.text.toString()
         val comment: String = body.text.toString()
         val type: String = type.text.toString()
-        // TODO (NETWORK) implement post method for this shit
-        // TODO (UI) if ok show it to user
+        val api = MapsRepositoryProvider.provideMapRepository()
+        api.postComment(where.map, where.floor, where.x, where.y, author, comment, type)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({result ->
+                    if (result.isSuccessful) {
+                        Toast.makeText(applicationContext, "Posted successfully", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Log.e("postComment", result.code().toString())
+                        Toast.makeText(applicationContext, "Sorry, your comment not posted", Toast.LENGTH_SHORT).show()
+                    }
+                },{error ->
+                    Log.e("postComment", error.localizedMessage)
+                    Toast.makeText(applicationContext, "Sorry, your comment not posted", Toast.LENGTH_SHORT).show()
+                })
         super.onBackPressed()
     }
 

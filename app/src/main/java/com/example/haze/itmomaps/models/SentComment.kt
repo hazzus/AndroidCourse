@@ -1,17 +1,15 @@
-package com.example.haze.itmomaps.network
+package com.example.haze.itmomaps.models
 
 import android.os.Parcel
 import android.os.Parcelable
 import java.util.*
 
-data class CommentView(val name: String,
-                       val comment: String,
-                       val date: Date?,
-                       val type: String) : Parcelable {
+data class SentComment(val name: String,
+                           val comment: String,
+                           val type: String) : Parcelable {
     constructor(parcel: Parcel) : this(
             parcel.readString(),
             parcel.readString(),
-            TODO("date"),
             parcel.readString())
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -24,12 +22,12 @@ data class CommentView(val name: String,
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<CommentView> {
-        override fun createFromParcel(parcel: Parcel): CommentView {
-            return CommentView(parcel)
+    companion object CREATOR : Parcelable.Creator<ReceivedComment> {
+        override fun createFromParcel(parcel: Parcel): ReceivedComment {
+            return ReceivedComment(parcel)
         }
 
-        override fun newArray(size: Int): Array<CommentView?> {
+        override fun newArray(size: Int): Array<ReceivedComment?> {
             return arrayOfNulls(size)
         }
     }
