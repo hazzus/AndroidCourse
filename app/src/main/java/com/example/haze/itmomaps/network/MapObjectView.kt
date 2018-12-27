@@ -18,6 +18,8 @@ package com.example.haze.itmomaps.network
  * @param name
  * @param description
  */
+
+// TODO this is similar to models.MapObject, get rid of this
 data class MapObjectView(
         val coordinates: CoordinatesView? = null,
         val type: kotlin.String? = null,

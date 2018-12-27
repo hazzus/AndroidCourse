@@ -11,6 +11,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
@@ -23,14 +24,18 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
+import com.example.haze.itmomaps.api.MapsRepositoryProvider
 import com.example.haze.itmomaps.models.Building
 import com.example.haze.itmomaps.models.MapObject
 import com.example.haze.itmomaps.network.DownloadMapViewsTask
 import com.github.chrisbanes.photoview.PhotoViewAttacher
 import com.google.android.material.navigation.NavigationView
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.floor_content.*
+import org.jetbrains.anko.db.insert
 import java.lang.Float.min
 import java.lang.ref.WeakReference
 
@@ -102,13 +107,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         urls = mutableListOf()
         if (isConnected) {
             for (i in 1..1) {
-                DownloadMapViewsTask(WeakReference(this), i).execute()
+                val api = MapsRepositoryProvider.provideMapRepository()
+                api.getMap(i)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe( { result ->
+                            result.pictures!!.forEach {
+                                db.insert("Pictures", "building" to Integer.valueOf(i), "floor" to Integer.valueOf(it.floor!!), "url" to it.url)
+                            }
+                        }, { error ->
+                            Log.e("DB", error.localizedMessage)
+                            // TODO Toast is too short, maybe show it another way
+                            Toast.makeText(applicationContext, "No possibility to download map", Toast.LENGTH_LONG).show()
+                        })
+                //DownloadMapViewsTask(WeakReference(this), i).execute()
             }
         }
         try {
             SetImagesFromDatabase(WeakReference(this)).execute()
         } catch (e: ArrayIndexOutOfBoundsException) {
-            // TODO Maybe another way, toast is not long
             Toast.makeText(applicationContext, "No internet connection, can't download images", Toast.LENGTH_LONG).show()
         }
     }

@@ -36,14 +36,14 @@ class LeaveMapCommentActivity : AppCompatActivity() {
         api.postComment(where.map, where.floor, where.x, where.y, author, comment, type)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe({result ->
+                .subscribe({ result ->
                     if (result.isSuccessful) {
                         Toast.makeText(applicationContext, "Posted successfully", Toast.LENGTH_SHORT).show()
                     } else {
                         Log.e("postComment", result.code().toString())
                         Toast.makeText(applicationContext, "Sorry, your comment not posted", Toast.LENGTH_SHORT).show()
                     }
-                },{error ->
+                }, { error ->
                     Log.e("postComment", error.localizedMessage)
                     Toast.makeText(applicationContext, "Sorry, your comment not posted", Toast.LENGTH_SHORT).show()
                 })
