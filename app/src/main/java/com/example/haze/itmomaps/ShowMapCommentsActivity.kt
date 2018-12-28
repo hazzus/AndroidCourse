@@ -11,8 +11,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.haze.itmomaps.api.MapsRepositoryProvider
-import com.example.haze.itmomaps.models.MapObject
-import com.example.haze.itmomaps.models.ReceivedComment
+import com.example.haze.itmomaps.api.objects.MapObject
+import com.example.haze.itmomaps.api.objects.ReceivedComment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_show_comments.*
@@ -21,6 +21,7 @@ import java.util.*
 class ShowMapCommentsActivity : AppCompatActivity() {
 
     lateinit var where: MapObject
+    private var buildingId: Int = 1
     var receivedComments: ArrayList<ReceivedComment> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,8 +30,8 @@ class ShowMapCommentsActivity : AppCompatActivity() {
 
         val layoutManager = LinearLayoutManager(this)
 
-
         where = intent.getParcelableExtra("location")
+        buildingId = intent.getIntExtra("buildingId", 1)
 
         val connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
@@ -38,9 +39,8 @@ class ShowMapCommentsActivity : AppCompatActivity() {
         if (savedInstanceState?.containsKey("receivedComments") != null) {
             receivedComments = savedInstanceState.getParcelableArrayList("receivedComments")!!
         } else if (isConnected) {
-            //TODO (UI) let user know that there is no possibility to download receivedComments
             val api = MapsRepositoryProvider.provideMapRepository()
-            api.getComments(where.map, where.floor, where.x, where.y)
+            api.getComments(buildingId, where.floor!!, where.x!!, where.y!!)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe( { result ->
@@ -70,6 +70,7 @@ class ShowMapCommentsActivity : AppCompatActivity() {
     fun leaveComment(view: View) {
         val intent = Intent(this, LeaveMapCommentActivity::class.java).apply {
             putExtra("location", where)
+            putExtra("buildingID", buildingId)
         }
         startActivity(intent)
     }

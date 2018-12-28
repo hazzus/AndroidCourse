@@ -6,7 +6,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.haze.itmomaps.api.MapsRepositoryProvider
-import com.example.haze.itmomaps.models.MapObject
+import com.example.haze.itmomaps.api.objects.MapObject
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_leave_comment.*
@@ -14,13 +14,14 @@ import kotlinx.android.synthetic.main.activity_leave_comment.*
 
 class LeaveMapCommentActivity : AppCompatActivity() {
     private lateinit var where: MapObject
-
+    private var buildingId = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_leave_comment)
 
         where = intent.getParcelableExtra("location")
+        buildingId = intent.getIntExtra("buildingId", 1)
 
         with(location) {
             this.text = where.toString()
@@ -33,7 +34,7 @@ class LeaveMapCommentActivity : AppCompatActivity() {
         val comment: String = body.text.toString()
         val type: String = type.text.toString()
         val api = MapsRepositoryProvider.provideMapRepository()
-        api.postComment(where.map, where.floor, where.x, where.y, author, comment, type)
+        api.postComment(buildingId, where.floor!!, where.x!!, where.y!!, author, comment, type)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->

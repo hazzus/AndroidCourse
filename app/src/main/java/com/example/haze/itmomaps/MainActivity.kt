@@ -25,9 +25,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.example.haze.itmomaps.api.MapsRepositoryProvider
-import com.example.haze.itmomaps.models.Building
-import com.example.haze.itmomaps.models.MapObject
-import com.example.haze.itmomaps.network.DownloadMapViewsTask
+import com.example.haze.itmomaps.api.objects.MapObject
 import com.github.chrisbanes.photoview.PhotoViewAttacher
 import com.google.android.material.navigation.NavigationView
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -36,7 +34,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.floor_content.*
 import org.jetbrains.anko.db.insert
-import java.lang.Float.min
 import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -48,15 +45,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var path: Array<Parcelable>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
         fab.setOnClickListener {
-
             val intent = Intent(this, RouteActivity::class.java).apply {
-                putExtra("buildingName", buildingSelector.selectedItem.toString())
                 putExtra("buildingId", buildingSelector.selectedItemPosition + 1)
             }
             startActivity(intent)
@@ -64,8 +57,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val buildingNames = arrayOf("Kronverksky", "Lomonosova", "Grivcova")
 
-
-
+        // TODO update map on buldingSelector value changed!
         floorPicker.min = 1
         floorPicker.max = 5
         if (savedInstanceState != null) {
@@ -80,7 +72,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (path != null) {
             val first = path!![0]
             if (first is MapObject)
-                floorPicker.value = first.floor
+                floorPicker.value = first.floor!!
         }
 
         registerForContextMenu(floorView)
@@ -116,9 +108,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 db.insert("Pictures", "building" to Integer.valueOf(i), "floor" to Integer.valueOf(it.floor!!), "url" to it.url)
                             }
                         }, { error ->
-                            Log.e("DB", error.localizedMessage)
-                            // TODO Toast is too short, maybe show it another way
-                            Toast.makeText(applicationContext, "No possibility to download map", Toast.LENGTH_LONG).show()
+                            Log.e("API.getMap", error.localizedMessage)
+                            Toast.makeText(applicationContext, "No possibility to update map", Toast.LENGTH_LONG).show()
                         })
                 //DownloadMapViewsTask(WeakReference(this), i).execute()
             }
@@ -126,7 +117,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         try {
             SetImagesFromDatabase(WeakReference(this)).execute()
         } catch (e: ArrayIndexOutOfBoundsException) {
-            Toast.makeText(applicationContext, "No internet connection, can't download images", Toast.LENGTH_LONG).show()
+            // TODO not toast
+            Toast.makeText(applicationContext, "No cached images", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -140,9 +132,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val radius = 0.5F * if (blockWidth > blockHeight) blockHeight else blockWidth
         for (obj in this.path!!) {
             if (obj is MapObject)
-                if (obj.floor == floorPicker.value) {
-                    val drawX = (obj.x + 0.5F) * blockWidth
-                    val drawY = (obj.y + 0.5F) * blockHeight
+                if (obj.floor!! == floorPicker.value) {
+                    val drawX = (obj.x!! + 0.5F) * blockWidth
+                    val drawY = (obj.y!! + 0.5F) * blockHeight
                     canvas.drawCircle(drawX, drawY, radius, paint)
                 }
         }
@@ -177,8 +169,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onContextItemSelected(item: MenuItem?): Boolean {
         val position = MapObject(
-                buildingSelector.selectedItem.toString(),
-                buildingSelector.selectedItemPosition + 1,
                 (currentX * 100).toInt(),
                 (currentY * 100).toInt(),
                 floorPicker.value
@@ -187,6 +177,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.comment -> {
                 position.convertToComment()
                 val intent = Intent(this, LeaveMapCommentActivity::class.java).apply {
+                    putExtra("buildingId", buildingSelector.selectedItemPosition + 1)
                     putExtra("location", position)
                 }
                 startActivity(intent)
@@ -194,22 +185,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.view -> {
                 position.convertToComment()
                 val intent = Intent(this, ShowMapCommentsActivity::class.java).apply {
+                    putExtra("buildingId", buildingSelector.selectedItemPosition + 1)
                     putExtra("location", position)
                 }
                 startActivity(intent)
             }
             R.id.from -> {
                 val intent = Intent(this, RouteActivity::class.java).apply {
-                    putExtra("buildingName", position.building)
-                    putExtra("buildingId", position.map)
+                    putExtra("buildingId", buildingSelector.selectedItemPosition + 1)
                     putExtra("from", position)
                 }
                 startActivity(intent)
             }
             R.id.to -> {
                 val intent = Intent(this, RouteActivity::class.java).apply {
-                    putExtra("buildingName", position.building)
-                    putExtra("buildingId", position.map)
+                    putExtra("buildingId", buildingSelector.selectedItemPosition + 1)
                     putExtra("to", position)
                 }
                 startActivity(intent)

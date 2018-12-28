@@ -6,10 +6,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.haze.itmomaps.models.MapObject
-import com.example.haze.itmomaps.models.NoSuchWayException
-import com.example.haze.itmomaps.models.Route
-import com.example.haze.itmomaps.models.WrongMappingException
+import com.example.haze.itmomaps.api.objects.Room
 import kotlinx.android.synthetic.main.activity_show_routes.*
 
 class ShowRoutesActivity : AppCompatActivity() {
@@ -31,12 +28,7 @@ class ShowRoutesActivity : AppCompatActivity() {
         val res = mutableListOf<Route>()
         repeat(count) {
             if (extras != null) {
-                try {
-                    res.add(Route(extras.get("from") as MapObject, extras.get("to") as MapObject))
-                } catch (error: WrongMappingException) {
-                    Toast.makeText(applicationContext, "Can't build routes between different buildings", Toast.LENGTH_LONG).show()
-                    Log.e("Route", error.toString())
-                }
+                res.add(Route(extras.get("from") as Room, extras.get("to") as Room, extras.getInt("maxFloor")))
             }
         }
         return res

@@ -1,23 +1,17 @@
-package com.example.haze.itmomaps.network
+package com.example.haze.itmomaps.api.objects
 
 import java.util.*
 
-/**
- *
- * @param name
- * @param pictures
- * @param objects
- */
-data class MapView(
-        val name: kotlin.String? = null,
-        val pictures: kotlin.Array<PictureView>? = null,
-        val objects: kotlin.Array<MapObjectView>? = null
+data class Map(
+        val name: String? = null,
+        val pictures: Array<Picture>? = null,
+        val objects: Array<Room>? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as MapView
+        other as Map
 
         if (name != other.name) return false
         if (!Arrays.equals(pictures, other.pictures)) return false
@@ -32,6 +26,4 @@ data class MapView(
         result = 31 * result + (objects?.let { Arrays.hashCode(it) } ?: 0)
         return result
     }
-
 }
-

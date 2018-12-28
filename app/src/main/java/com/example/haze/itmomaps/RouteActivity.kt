@@ -2,68 +2,78 @@ package com.example.haze.itmomaps
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.haze.itmomaps.models.MapObject
+import com.example.haze.itmomaps.api.MapsRepositoryProvider
+import com.example.haze.itmomaps.api.objects.Map
+import com.example.haze.itmomaps.api.objects.MapObject
+import com.example.haze.itmomaps.api.objects.Room
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_route_view.*
 
 
 class RouteActivity : AppCompatActivity() {
 
-    private lateinit var buildingName: String
     private var buildingId: Int = 1
-    private lateinit var fromView: TextView
-    private lateinit var toView: TextView
+    private var maxFloor: Int = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_route_view)
 
-        buildingName = intent.getStringExtra("buildingName")
         buildingId = intent.getIntExtra("buildingId", 1)
 
-        with(building_name) {
-            this.text = buildingName
-        }
+        // setting selectors to chosen value
 
-        val allObjects = getMapObjects()
+        val api = MapsRepositoryProvider.provideMapRepository()
+        api.getMap(buildingId)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(::onObjectsGot) { error ->
+                    Log.e("getMap", error.localizedMessage)
+                    //TODO show it to user
+                }
+    }
 
-        val adapter = ArrayAdapter(this, R.layout.map_object_spinner_item, allObjects)
+    private fun onObjectsGot(result: Map) {
+        val fromObject: MapObject?= intent.getParcelableExtra("to")
+        val toObject: MapObject? = intent.getParcelableExtra("from")
+
+        val adapter = ArrayAdapter(this, R.layout.map_object_spinner_item, result.objects!!)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         from.adapter = adapter
         to.adapter = adapter
 
-        // setting selectors to chosen value
-        val fromObject: MapObject?= intent.getParcelableExtra("to")
-        val toObject: MapObject? = intent.getParcelableExtra("from")
-
         if (fromObject != null) {
-            val index = allObjects.indexOf(fromObject)
-            from.setSelection(if (index >= 0) index else 0)
+            from.setSelection(indexOfRoom(result.objects, fromObject))
         }
         if (toObject != null) {
-            val index = allObjects.indexOf(toObject)
-            to.setSelection(if (index >= 0) index else 0)
+            to.setSelection(indexOfRoom(result.objects, toObject))
         }
+        with(building_name) {
+            this.text = result.name
+        }
+        maxFloor = result.pictures!!.size
     }
 
-    private fun getMapObjects() : Array<MapObject> {
-        // TODO (NETWORK) implement this network messages
-        return arrayOf(
-                MapObject(buildingName, buildingId, 0, 0, 1),
-                MapObject(buildingName, buildingId, 10, 10, 1),
-                MapObject(buildingName, buildingId, 40, 40, 3),
-                MapObject(buildingName, buildingId, 8, 56, 1),
-                MapObject(buildingName, buildingId, 6, 76, 1)
-        )
+    private fun indexOfRoom(rooms: Array<Room>, find: MapObject): Int {
+        for (i in 0..rooms.size) {
+            if (rooms[i].coordinates!!.squares!!.contains(find)) {
+                return i
+            }
+        }
+        return 0
     }
 
     fun showRoutes(view: View) {
         val intent = Intent(this, ShowRoutesActivity::class.java).apply {
-            putExtra("from", from.selectedItem as MapObject)
-            putExtra("to", to.selectedItem as MapObject)
+            putExtra("from", from.selectedItem as Room)
+            putExtra("to", to.selectedItem as Room)
+            putExtra("maxFloor", maxFloor)
         }
         startActivity(intent)
     }

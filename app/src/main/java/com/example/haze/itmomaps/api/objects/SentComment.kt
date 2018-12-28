@@ -1,8 +1,8 @@
-package com.example.haze.itmomaps.models
+package com.example.haze.itmomaps.api.objects
 
 import android.os.Parcel
 import android.os.Parcelable
-import java.util.*
+import com.example.haze.itmomaps.api.objects.ReceivedComment
 
 data class SentComment(val name: String,
                            val comment: String,

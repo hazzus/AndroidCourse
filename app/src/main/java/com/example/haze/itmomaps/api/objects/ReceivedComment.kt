@@ -1,4 +1,4 @@
-package com.example.haze.itmomaps.models
+package com.example.haze.itmomaps.api.objects
 
 import android.os.Parcel
 import android.os.Parcelable

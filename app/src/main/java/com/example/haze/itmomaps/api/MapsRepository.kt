@@ -1,8 +1,8 @@
 package com.example.haze.itmomaps.api
 
-import com.example.haze.itmomaps.models.ReceivedComment
-import com.example.haze.itmomaps.models.SentComment
-import com.example.haze.itmomaps.network.MapView
+import com.example.haze.itmomaps.api.objects.ReceivedComment
+import com.example.haze.itmomaps.api.objects.SentComment
+import com.example.haze.itmomaps.api.objects.Map
 import io.reactivex.Observable
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -17,7 +17,7 @@ class MapsRepository(private val apiService: MapsApiService) {
         return apiService.comment(map, floor, x, y, SentComment(author, comment, type))
     }
 
-    fun getMap(map: Int) : Observable<MapView> {
+    fun getMap(map: Int) : Observable<Map> {
         return apiService.map(map)
     }
 }
