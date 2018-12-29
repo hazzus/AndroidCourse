@@ -52,13 +52,17 @@ class Route(private val fromRoom: Room, private val toRoom: Room, private val ma
                 }
             }
             if (cur.isStair()) {
-                for (k in -1..1) {
-                    val next = MapObject(cur.x, cur.y, cur.floor!! + k)
-                    if (next.floor in 1..maxFloor && !visited[next.x!!][next.y!!][next.floor!!]) {
-                        q.add(next)
-                        parent[next] = cur
-                        visited[next.x!!][next.y!!][next.floor] = true
-                    }
+                var next = cur.top
+                if (next != null && !visited[next.x!!][next.y!!][next.floor!!]) {
+                    q.add(next)
+                    parent[next] = cur
+                    visited[next.x!!][next.y!!][next.floor!!] = true
+                }
+                next = cur.down
+                if (next != null && !visited[next.x!!][next.y!!][next.floor!!]) {
+                    q.add(next)
+                    parent[next] = cur
+                    visited[next.x!!][next.y!!][next.floor!!] = true
                 }
             }
         }
