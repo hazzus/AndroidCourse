@@ -43,7 +43,7 @@ class Route(private val fromRoom: Room, private val toRoom: Room, private val ma
             for (i in -1..1) {
                 for (j in -1..1) {
                     if (cur.x!! + i in 0..99 && cur.y!! + j in 0..99) {
-                        val next = MapObject(cur.x!! + i, cur.y!! + j, cur.floor)
+                        val next = MapObject(cur.floor, cur.x!! + i, cur.y!! + j)
                         if (next.isCorridor() && !visited[next.x!!][next.y!!][next.floor!!]) {
                             q.add(next)
                             parent[next] = cur

@@ -21,19 +21,21 @@ data class MapObject(
         if (floor != null && x != null && y != null) {
             val api = MapsRepositoryProvider.provideMapRepository()
             //TODO get here map
+            // TODO blocking call or do smthing 
             api.find(1, floor, x!!, y!!)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe({ result ->
                         if (result.type == "stair") {
                             stair = true
+                            corridor = true
                             if (result.top != null) {
                                 top = result.top
                             }
                             if (result.down != null) {
                                 down = result.down
                             }
-                        } else if (result.type == "corridor") {
+                        } else if (result.type == "nothing") {
                             corridor = true
                         }
                     }, { error ->
