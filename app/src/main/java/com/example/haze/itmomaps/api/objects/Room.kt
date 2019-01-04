@@ -10,12 +10,13 @@ data class Room (
         val description: String? = null
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-            TODO("coordinates"),
+            parcel.readParcelable(Coordinates::class.java.classLoader),
             parcel.readString(),
             parcel.readString(),
             parcel.readString())
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeParcelable(coordinates, flags)
         parcel.writeString(type)
         parcel.writeString(name)
         parcel.writeString(description)

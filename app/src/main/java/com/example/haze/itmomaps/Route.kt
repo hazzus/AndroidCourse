@@ -32,6 +32,7 @@ class Route(private val fromRoom: Room, private val toRoom: Room, private val ma
         // BFS
         //floor starts with 0
         val visited = Array(100) { Array(100) { Array(maxFloor + 1) { false } } }
+        // TODO NullPointerException on to!!
         val q = PriorityQueue<MapObject>(100, RouteBuildingComparator(to!!))
         visited[from!!.x!!][from.y!!][from.floor!!] = true
         q.add(from)

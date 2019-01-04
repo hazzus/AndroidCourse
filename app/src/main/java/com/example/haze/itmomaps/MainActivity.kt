@@ -169,9 +169,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onContextItemSelected(item: MenuItem?): Boolean {
         val position = MapObject(
+                floorPicker.value,
                 (currentX * 100).toInt(),
-                (currentY * 100).toInt(),
-                floorPicker.value
+                (currentY * 100).toInt()
         )
         when (item!!.itemId) {
             R.id.comment -> {

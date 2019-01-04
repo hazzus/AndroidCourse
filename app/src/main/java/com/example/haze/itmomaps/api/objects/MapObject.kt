@@ -18,26 +18,28 @@ data class MapObject(
     var down: MapObject? = null
 
     init {
-        val api = MapsRepositoryProvider.provideMapRepository()
-        //TODO get here map
-        api.find(1, floor!!, x!!, y!!)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe({ result ->
-                    if (result.type == "stair") {
-                        stair = true
-                        if (result.top != null) {
-                            top = result.top
+        if (floor != null && x != null && y != null) {
+            val api = MapsRepositoryProvider.provideMapRepository()
+            //TODO get here map
+            api.find(1, floor, x!!, y!!)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ result ->
+                        if (result.type == "stair") {
+                            stair = true
+                            if (result.top != null) {
+                                top = result.top
+                            }
+                            if (result.down != null) {
+                                down = result.down
+                            }
+                        } else if (result.type == "corridor") {
+                            corridor = true
                         }
-                        if (result.down != null) {
-                            down = result.down
-                        }
-                    } else if (result.type == "corridor") {
-                        corridor = true
-                    }
-                }, { error ->
-                    Log.e("MapObject.find", error.localizedMessage)
-                })
+                    }, { error ->
+                        Log.e("MapObject.find", error.localizedMessage)
+                    })
+        }
     }
 
     constructor(parcel: Parcel) : this(
