@@ -25,4 +25,8 @@ class MapsRepository(private val apiService: MapsApiService) {
     fun find(map: Int, floor: Int, x: Int, y: Int) : Observable<FindObject> {
         return apiService.find(map, floor, x, y)
     }
+
+    fun getStairs(map: Int) : Observable<List<FindObject>>{
+        return apiService.stairs(map)
+    }
 }

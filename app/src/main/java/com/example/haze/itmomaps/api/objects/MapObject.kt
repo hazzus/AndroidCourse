@@ -12,37 +12,6 @@ data class MapObject(
         var x: Int? = null,
         var y: Int? = null
 ) : Parcelable {
-    private var stair = false
-    private var corridor = false
-    var top: MapObject? = null
-    var down: MapObject? = null
-
-    init {
-        if (floor != null && x != null && y != null) {
-            val api = MapsRepositoryProvider.provideMapRepository()
-            //TODO get here map
-            // TODO blocking call or do smthing 
-            api.find(1, floor, x!!, y!!)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe({ result ->
-                        if (result.type == "stair") {
-                            stair = true
-                            corridor = true
-                            if (result.top != null) {
-                                top = result.top
-                            }
-                            if (result.down != null) {
-                                down = result.down
-                            }
-                        } else if (result.type == "nothing") {
-                            corridor = true
-                        }
-                    }, { error ->
-                        Log.e("MapObject.find", error.localizedMessage)
-                    })
-        }
-    }
 
     constructor(parcel: Parcel) : this(
             parcel.readValue(Int::class.java.classLoader) as? Int,
@@ -52,14 +21,6 @@ data class MapObject(
     fun convertToComment() {
         x = x!!.div(4)
         y = y!!.div(4)
-    }
-
-    fun isStair() : Boolean {
-        return stair
-    }
-
-    fun isCorridor() : Boolean {
-        return corridor
     }
 
 

@@ -38,6 +38,9 @@ interface MapsApiService {
              @Path("y") y: Int
     ) : Observable<FindObject>
 
+    @GET("map/{map}/stairs/")
+    fun stairs(@Path("map") map: Int) : Observable<List<FindObject>>
+
     companion object Factory {
         fun create(): MapsApiService {
             val retrofit = Retrofit.Builder()
