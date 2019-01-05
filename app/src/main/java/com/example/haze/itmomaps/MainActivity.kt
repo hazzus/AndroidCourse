@@ -15,7 +15,6 @@ import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import com.bumptech.glide.Glide
@@ -23,7 +22,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
-import com.example.haze.itmomaps.models.Building
 import com.example.haze.itmomaps.models.MapObject
 import com.example.haze.itmomaps.network.DownloadMapViewsTask
 import com.github.chrisbanes.photoview.PhotoViewAttacher
@@ -31,7 +29,6 @@ import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.floor_content.*
-import java.lang.Float.min
 import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -58,7 +55,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         val buildingNames = arrayOf("Kronverksky", "Lomonosova", "Grivcova")
-
 
 
         floorPicker.min = 1
@@ -105,12 +101,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 DownloadMapViewsTask(WeakReference(this), i).execute()
             }
         }
-        try {
-            SetImagesFromDatabase(WeakReference(this)).execute()
-        } catch (e: ArrayIndexOutOfBoundsException) {
-            // TODO Maybe another way, toast is not long
-            Toast.makeText(applicationContext, "No internet connection, can't download images", Toast.LENGTH_LONG).show()
-        }
+        SetImagesFromDatabase(WeakReference(this)).execute()
     }
 
     private fun drawTheWay(resource: BitmapDrawable): BitmapDrawable {
@@ -138,7 +129,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .load(urls[i])
                 .apply(RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL))
                 .into(object : SimpleTarget<Drawable>() {
-                    //I have no idea why it isnt working other way
+                    //I have no idea why it doesnt work other way
                     override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
                         var res = resource as BitmapDrawable
                         if (path != null)

@@ -30,14 +30,9 @@ class ShowMapCommentsActivity : AppCompatActivity() {
 
         where = intent.getParcelableExtra("location")
 
-        val connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
-        val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
+
         if (savedInstanceState?.containsKey("comments") != null) {
             comments = savedInstanceState.getParcelableArrayList("comments")!!
-        } else if (isConnected) {
-            //TODO (UI) let user know that there is no possibility to download comments
-            DownloadCommentsTask(WeakReference(this), where).execute()
         }
 
         with(comment_recycler) {
@@ -51,6 +46,17 @@ class ShowMapCommentsActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        val connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+        val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
+        if (isConnected) {
+            DownloadCommentsTask(WeakReference(this), where).execute()
+        } else {
+            startActivity(Intent(this, NoConnectionActivity::class.java))
+        }
+    }
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
         Log.d("ShowMapCommentsActivity", "save() called")

@@ -5,6 +5,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -25,20 +26,17 @@
         </activity>
         <activity
             android:name=".RouteActivity"
-            android:label="Route selection">
-        </activity>
+            android:label="Route selection"></activity>
         <activity
             android:name=".ShowRoutesActivity"
-            android:label="Route variants">
-        </activity>
+            android:label="Route variants"></activity>
         <activity
             android:name=".LeaveMapCommentActivity"
-            android:label="Leave comment">
-        </activity>
+            android:label="Leave comment"></activity>
         <activity
             android:name=".ShowMapCommentsActivity"
-            android:label="Comments">
-        </activity>
+            android:label="Comments"></activity>
+        <activity android:name=".NoConnectionActivity"></activity>
     </application>
 
 </manifest>
