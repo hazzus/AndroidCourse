@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             Log.e("API.getMap", error.localizedMessage)
                             Toast.makeText(applicationContext, "No possibility to update map", Toast.LENGTH_LONG).show()
                         })
-                //DownloadMapViewsTask(WeakReference(this), i).execute()
+                //DownloadMapViewsTask(WeresourcesakReference(this), i).execute()
             }
         }
         try {

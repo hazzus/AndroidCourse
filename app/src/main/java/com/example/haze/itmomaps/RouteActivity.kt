@@ -19,7 +19,6 @@ import kotlinx.android.synthetic.main.activity_route_view.*
 class RouteActivity : AppCompatActivity() {
 
     private var buildingId: Int = 1
-    private var maxFloor: Int = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +56,6 @@ class RouteActivity : AppCompatActivity() {
         with(building_name) {
             this.text = result.name
         }
-        maxFloor = result.pictures!!.size
     }
 
     private fun indexOfRoom(rooms: Array<Room>, find: MapObject): Int {
@@ -73,7 +71,6 @@ class RouteActivity : AppCompatActivity() {
         val intent = Intent(this, ShowRoutesActivity::class.java).apply {
             putExtra("from", from.selectedItem as Room)
             putExtra("to", to.selectedItem as Room)
-            putExtra("maxFloor", maxFloor)
         }
         startActivity(intent)
     }

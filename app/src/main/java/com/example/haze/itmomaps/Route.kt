@@ -1,15 +1,22 @@
 package com.example.haze.itmomaps
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.util.Log
 import com.example.haze.itmomaps.api.MapsRepositoryProvider
 import com.example.haze.itmomaps.api.objects.MapObject
 import com.example.haze.itmomaps.api.objects.Room
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import java.io.FileOutputStream
 import java.lang.Exception
 import java.lang.Math.abs
 import java.util.*
 import kotlin.Comparator
 import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 
 
 class NoSuchWayException(message: String) : Exception(message)
@@ -25,77 +32,77 @@ class RouteBuildingComparator(private val dest: MapObject) : Comparator<MapObjec
 
 }
 
-class Route(private val fromRoom: Room, private val toRoom: Room, private val maxFloor: Int) {
+class Route(private val fromRoom: Room, private val toRoom: Room) {
 
     private val parent = HashMap<MapObject, MapObject>()
     private val from = fromRoom.coordinates!!.door
     private val to = toRoom.coordinates!!.door
 
-    private val corridor = Array(100) { Array(100) { Array(maxFloor + 1) { true } } }
-    private val stair = Array(100) { Array(100) { Array(maxFloor + 1) { Triple<Boolean, MapObject?, MapObject?>(false, null, null) } } }
+    private val notCorridor = HashSet<MapObject>()
+    private val stair = HashMap<MapObject, Pair<MapObject?, MapObject?>>()
 
     init {
-        // BFS
-        //floor starts with 0
-
         val api = MapsRepositoryProvider.provideMapRepository()
         api.getMap(1)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe { result ->
+                    result.objects!!.forEach {
+                        it.coordinates!!.squares!!.forEach {coordinate ->
+                            notCorridor.add(coordinate)
+                        }
+
+                        it.coordinates.door?.let { it1 -> notCorridor.remove(it1) }
+                    }
                     api.getStairs(1)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribeOn(Schedulers.io())
                             .subscribe {
                                 for (s in it)
-                                    stair[s.self!!.x!!][s.self.y!!][s.self.floor!!] = Triple(true, s.top, s.down)
+                                    stair[s.self!!] = Pair(s.top, s.down)
                                 buildRoute()
                             }
-                    result.objects!!.forEach {
-                        it.coordinates!!.squares!!.forEach {coordinate ->
-                            corridor[coordinate.x!!][coordinate.y!!][coordinate.floor!!] = false
-                        }
-                    }
+
                 }
     }
 
     private fun buildRoute() {
-        val visited = Array(100) { Array(100) { Array(maxFloor + 1) { false } } }
-        val q = PriorityQueue<MapObject>(100, RouteBuildingComparator(to!!))
-        visited[from!!.x!!][from.y!!][from.floor!!] = true
-        q.add(from)
-        while (!q.isEmpty()) {
-            val cur = q.poll()
-            if (cur == to)
-                break
-            for (i in -1..1) {
+        // TODO BUILDS NOT ALWAYS
+        val visited = HashSet<MapObject>()
+        val queue = PriorityQueue<MapObject>(100, RouteBuildingComparator(to!!))
+        queue.add(from!!)
+        visited.add(from)
+        while (!queue.isEmpty()) {
+            val cur = queue.poll()
+            if (cur == to) break
+            for (i in -1..1)
                 for (j in -1..1) {
                     if (cur.x!! + i in 0..99 && cur.y!! + j in 0..99) {
                         val next = MapObject(cur.floor, cur.x!! + i, cur.y!! + j)
-                        if (corridor[next.x!!][next.y!!][next.floor!!] && !visited[next.x!!][next.y!!][next.floor]) {
-                            q.add(next)
+                        if (!notCorridor.contains(next) && !visited.contains(next)) {
+                            queue.add(next)
                             parent[next] = cur
-                            visited[next.x!!][next.y!!][next.floor] = true
+                            visited.add(next)
                         }
                     }
                 }
-            }
-            val curStair = stair[cur.x!!][cur.y!!][cur.floor!!]
-            if (curStair.first) { // TODO replace with stairs array
-                var next = curStair.second
-                if (next != null && !visited[next.x!!][next.y!!][next.floor!!]) {
-                    q.add(next)
-                    parent[next] = cur
-                    visited[next.x!!][next.y!!][next.floor!!] = true
+            val curStair = stair.get(cur)
+            if (curStair != null) {
+                val top = curStair.first
+                if (top != null && !visited.contains(top)) {
+                    queue.add(top)
+                    parent[top] = cur
+                    visited.add(top)
                 }
-                next = curStair.third
-                if (next != null && !visited[next.x!!][next.y!!][next.floor!!]) {
-                    q.add(next)
-                    parent[next] = cur
-                    visited[next.x!!][next.y!!][next.floor!!] = true
+                val down = curStair.first
+                if (down != null && !visited.contains(down)) {
+                    queue.add(down)
+                    parent[down] = cur
+                    visited.add(down)
                 }
             }
         }
+        Log.i("Route", "Building finished")
     }
 
     fun getRoute(): List<MapObject> {
