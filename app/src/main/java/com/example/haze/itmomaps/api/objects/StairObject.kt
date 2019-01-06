@@ -1,6 +1,6 @@
 package com.example.haze.itmomaps.api.objects
 
-data class FindObject(
+data class StairObject(
         val type: String? = null,
         val room: Room? = null,
         val self: MapObject? = null,
