@@ -1,16 +1,11 @@
 package com.example.haze.itmomaps
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Paint
 import android.util.Log
 import com.example.haze.itmomaps.api.MapsRepositoryProvider
 import com.example.haze.itmomaps.api.objects.MapObject
 import com.example.haze.itmomaps.api.objects.Room
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import java.io.FileOutputStream
 import java.lang.Exception
 import java.lang.Math.abs
 import java.util.*
@@ -67,14 +62,15 @@ class Route(private val fromRoom: Room, private val toRoom: Room) {
     }
 
     private fun buildRoute() {
-        // TODO BUILDS NOT ALWAYS
         val visited = HashSet<MapObject>()
-        val queue = PriorityQueue<MapObject>(100, RouteBuildingComparator(to!!))
+        // val queue = PriorityQueue<MapObject>(100, RouteBuildingComparator(to!!))
+        val queue = ArrayDeque<MapObject>()
         queue.add(from!!)
         visited.add(from)
         while (!queue.isEmpty()) {
             val cur = queue.poll()
             if (cur == to) break
+            // TODO diagonal walking sucks?
             for (i in -1..1)
                 for (j in -1..1) {
                     if (cur.x!! + i in 0..99 && cur.y!! + j in 0..99) {
@@ -102,7 +98,7 @@ class Route(private val fromRoom: Room, private val toRoom: Room) {
                 }
             }
         }
-        Log.i("Route", "Building finished")
+        Log.i("buildRoute", "finished")
     }
 
     fun getRoute(): List<MapObject> {
