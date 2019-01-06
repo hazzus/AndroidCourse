@@ -16,6 +16,7 @@ import kotlin.collections.HashSet
 
 class NoSuchWayException(message: String) : Exception(message)
 
+// for priority queue if needed, priority can be changed
 class RouteBuildingComparator(private val dest: MapObject) : Comparator<MapObject> {
     private fun distance(o1: MapObject?): Int {
         return abs(o1!!.x!! - dest.x!!) + abs(o1.y!! - dest.y!!) + abs(o1.floor!! - dest.floor!!)
@@ -33,21 +34,18 @@ class Route(private val fromRoom: Room, private val toRoom: Room) {
     private val from = fromRoom.coordinates!!.door
     private val to = toRoom.coordinates!!.door
 
-    private val notCorridor = HashSet<MapObject>()
+    private val corridor = HashSet<MapObject>()
     private val stair = HashMap<MapObject, Pair<MapObject?, MapObject?>>()
 
     init {
+        // TODO get map number here
         val api = MapsRepositoryProvider.provideMapRepository()
-        api.getMap(1)
+        api.getCorridors(1)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe { result ->
-                    result.objects!!.forEach {
-                        it.coordinates!!.squares!!.forEach {coordinate ->
-                            notCorridor.add(coordinate)
-                        }
-
-                        it.coordinates.door?.let { it1 -> notCorridor.remove(it1) }
+                    result.forEach { coordinate ->
+                        corridor.add(coordinate)
                     }
                     api.getStairs(1)
                             .observeOn(AndroidSchedulers.mainThread())
@@ -63,7 +61,6 @@ class Route(private val fromRoom: Room, private val toRoom: Room) {
 
     private fun buildRoute() {
         val visited = HashSet<MapObject>()
-        // val queue = PriorityQueue<MapObject>(100, RouteBuildingComparator(to!!))
         val queue = ArrayDeque<MapObject>()
         queue.add(from!!)
         visited.add(from)
@@ -75,14 +72,14 @@ class Route(private val fromRoom: Room, private val toRoom: Room) {
                 for (j in -1..1) {
                     if (cur.x!! + i in 0..99 && cur.y!! + j in 0..99) {
                         val next = MapObject(cur.floor, cur.x!! + i, cur.y!! + j)
-                        if (!notCorridor.contains(next) && !visited.contains(next)) {
+                        if (corridor.contains(next) && !visited.contains(next)) {
                             queue.add(next)
                             parent[next] = cur
                             visited.add(next)
                         }
                     }
                 }
-            val curStair = stair.get(cur)
+            val curStair = stair[cur]
             if (curStair != null) {
                 val top = curStair.first
                 if (top != null && !visited.contains(top)) {
@@ -90,7 +87,7 @@ class Route(private val fromRoom: Room, private val toRoom: Room) {
                     parent[top] = cur
                     visited.add(top)
                 }
-                val down = curStair.first
+                val down = curStair.second
                 if (down != null && !visited.contains(down)) {
                     queue.add(down)
                     parent[down] = cur

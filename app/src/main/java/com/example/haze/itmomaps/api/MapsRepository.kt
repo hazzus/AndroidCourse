@@ -1,6 +1,7 @@
 package com.example.haze.itmomaps.api
 
-import com.example.haze.itmomaps.api.objects.FindObject
+import com.example.haze.itmomaps.api.objects.StairObject
+import com.example.haze.itmomaps.api.objects.MapObject
 import com.example.haze.itmomaps.api.objects.ReceivedComment
 import com.example.haze.itmomaps.api.objects.SentComment
 import com.example.haze.itmomaps.api.objects.Map
@@ -22,11 +23,11 @@ class MapsRepository(private val apiService: MapsApiService) {
         return apiService.map(map)
     }
 
-    fun find(map: Int, floor: Int, x: Int, y: Int) : Observable<FindObject> {
-        return apiService.find(map, floor, x, y)
+    fun getStairs(map: Int) : Observable<List<StairObject>>{
+        return apiService.stairs(map)
     }
 
-    fun getStairs(map: Int) : Observable<List<FindObject>>{
-        return apiService.stairs(map)
+    fun getCorridors(map: Int) : Observable<List<MapObject>> {
+        return apiService.corridors(map)
     }
 }
