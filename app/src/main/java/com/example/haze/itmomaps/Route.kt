@@ -7,26 +7,12 @@ import com.example.haze.itmomaps.api.objects.Room
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.lang.Exception
-import java.lang.Math.abs
 import java.util.*
-import kotlin.Comparator
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 
 
 class NoSuchWayException(message: String) : Exception(message)
-
-// for priority queue if needed, priority can be changed
-class RouteBuildingComparator(private val dest: MapObject) : Comparator<MapObject> {
-    private fun distance(o1: MapObject?): Int {
-        return abs(o1!!.x!! - dest.x!!) + abs(o1.y!! - dest.y!!) + abs(o1.floor!! - dest.floor!!)
-    }
-
-    override fun compare(o1: MapObject?, o2: MapObject?): Int {
-        return distance(o1) - distance(o2)
-    }
-
-}
 
 class Route(private val fromRoom: Room, private val toRoom: Room) {
 
@@ -38,8 +24,10 @@ class Route(private val fromRoom: Room, private val toRoom: Room) {
     private val stair = HashMap<MapObject, Pair<MapObject?, MapObject?>>()
 
     init {
+
         // TODO get map number here
         val api = MapsRepositoryProvider.provideMapRepository()
+
         api.getCorridors(1)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -51,18 +39,23 @@ class Route(private val fromRoom: Room, private val toRoom: Room) {
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribeOn(Schedulers.io())
                             .subscribe {
-                                for (s in it)
+                                for (s in it) {
                                     stair[s.self!!] = Pair(s.top, s.down)
+                                    corridor.add(s.self)
+                                }
                                 buildRoute()
                             }
 
                 }
+
     }
 
     private fun buildRoute() {
         val visited = HashSet<MapObject>()
         val queue = ArrayDeque<MapObject>()
-        queue.add(from!!)
+        corridor.add(to!!)
+        corridor.add(from!!)
+        queue.add(from)
         visited.add(from)
         while (!queue.isEmpty()) {
             val cur = queue.poll()
@@ -106,6 +99,7 @@ class Route(private val fromRoom: Room, private val toRoom: Room) {
             try {
                 cur = parent[cur]!!
             } catch (error: KotlinNullPointerException) {
+                // TODO Not always ther is no way, it maybe processing
                 throw NoSuchWayException("No such way from $fromRoom to $toRoom")
             }
             res.add(cur)

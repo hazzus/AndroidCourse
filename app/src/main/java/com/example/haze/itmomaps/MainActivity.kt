@@ -86,7 +86,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val adapter = ArrayAdapter(this, R.layout.building_spinner_item, buildingNames)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         buildingSelector.adapter = adapter
-
     }
 
     override fun onResume() {

@@ -39,8 +39,8 @@ class RouteActivity : AppCompatActivity() {
     }
 
     private fun onObjectsGot(result: Map) {
-        val fromObject: MapObject?= intent.getParcelableExtra("to")
-        val toObject: MapObject? = intent.getParcelableExtra("from")
+        val fromObject: MapObject?= intent.getParcelableExtra("from")
+        val toObject: MapObject? = intent.getParcelableExtra("to")
 
         val adapter = ArrayAdapter(this, R.layout.map_object_spinner_item, result.objects!!)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
