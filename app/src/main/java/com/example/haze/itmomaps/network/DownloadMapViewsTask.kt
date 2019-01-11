@@ -27,7 +27,7 @@ class DownloadMapViewsTask(val activity: WeakReference<MainActivity>, val map: I
 
         }
         val mapView: MapView = Gson().fromJson(response, MapView::class.java)
-        Log.d("DownloadMapViewsTask", url.toString())
+        Log.d("ololo", mapView.toString())
         return mapView
     }
 
