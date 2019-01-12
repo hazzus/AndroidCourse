@@ -113,12 +113,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 //DownloadMapViewsTask(WeresourcesakReference(this), i).execute()
             }
         }
-        try {
-            SetImagesFromDatabase(WeakReference(this)).execute()
-        } catch (e: ArrayIndexOutOfBoundsException) {
-            // TODO not toast
-            Toast.makeText(applicationContext, "No cached images", Toast.LENGTH_LONG).show()
-        }
+
+        SetImagesFromDatabase(WeakReference(this)).execute()
+
     }
 
     private fun drawTheWay(resource: BitmapDrawable): BitmapDrawable {
@@ -146,7 +143,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .load(urls[i])
                 .apply(RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL))
                 .into(object : SimpleTarget<Drawable>() {
-                    //I have no idea why it isnt working other way
+                    //I have no idea why it doesnt work other way
                     override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
                         var res = resource as BitmapDrawable
                         if (path != null)
