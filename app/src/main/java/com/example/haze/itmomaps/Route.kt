@@ -96,12 +96,11 @@ class Route(private val fromRoom: Room, private val toRoom: Room) {
         val res: MutableList<MapObject> = mutableListOf()
         res.add(cur)
         while (cur != from) {
-            try {
-                cur = parent[cur]!!
-            } catch (error: KotlinNullPointerException) {
-                // TODO Not always ther is no way, it maybe processing
+            if (parent[cur] == null){
+                // TODO Not always there is no way, it maybe processing
                 throw NoSuchWayException("No such way from $fromRoom to $toRoom")
             }
+            cur = parent[cur]!!
             res.add(cur)
         }
         return res.asReversed()
